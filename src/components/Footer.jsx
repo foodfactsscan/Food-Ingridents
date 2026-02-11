@@ -1,0 +1,299 @@
+import { Heart, Github, Linkedin, Mail, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+const Footer = () => {
+    const currentYear = new Date().getFullYear();
+
+    return (
+        <footer style={{
+            background: 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.3) 100%)',
+            backdropFilter: 'blur(10px)',
+            borderTop: '1px solid rgba(255,255,255,0.1)',
+            marginTop: '4rem',
+            padding: '3rem 0 1.5rem'
+        }}>
+            <div className="container">
+                {/* Main Footer Content */}
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                    gap: '3rem',
+                    marginBottom: '3rem'
+                }}>
+                    {/* Brand Section */}
+                    <div>
+                        <h3 style={{
+                            fontSize: '1.8rem',
+                            fontWeight: '800',
+                            background: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            marginBottom: '1rem'
+                        }}>
+                            FactsScan
+                        </h3>
+                        <p style={{
+                            color: 'var(--color-text-muted)',
+                            lineHeight: '1.7',
+                            marginBottom: '1rem',
+                            fontSize: '0.95rem'
+                        }}>
+                            Empowering healthier choices through instant nutritional insights.
+                            Know what you eat, choose what's right.
+                        </p>
+                        <div style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '0.5rem 1rem',
+                            background: 'rgba(124, 58, 237, 0.1)',
+                            borderRadius: 'var(--radius-full)',
+                            fontSize: '0.85rem'
+                        }}>
+                            <Heart size={16} color="#ec4899" fill="#ec4899" />
+                            <span style={{ color: '#7c3aed', fontWeight: '600' }}>
+                                Made in India
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Quick Links */}
+                    <div>
+                        <h4 style={{
+                            fontSize: '1.1rem',
+                            fontWeight: '700',
+                            marginBottom: '1rem',
+                            color: '#fff'
+                        }}>
+                            Quick Links
+                        </h4>
+                        <ul style={{ listStyle: 'none', padding: 0 }}>
+                            {[
+                                { to: '/', label: 'Home' },
+                                { to: '/about', label: 'About Us' },
+                                { to: '/scan', label: 'Scan Product' },
+                                { to: '/insights', label: 'Insights' }
+                            ].map((link, idx) => (
+                                <li key={idx} style={{ marginBottom: '0.75rem' }}>
+                                    <Link
+                                        to={link.to}
+                                        style={{
+                                            color: 'var(--color-text-muted)',
+                                            textDecoration: 'none',
+                                            fontSize: '0.95rem',
+                                            transition: 'color 0.3s'
+                                        }}
+                                        onMouseEnter={(e) => e.target.style.color = '#7c3aed'}
+                                        onMouseLeave={(e) => e.target.style.color = 'var(--color-text-muted)'}
+                                    >
+                                        {link.label}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    {/* Resources */}
+                    <div>
+                        <h4 style={{
+                            fontSize: '1.1rem',
+                            fontWeight: '700',
+                            marginBottom: '1rem',
+                            color: '#fff'
+                        }}>
+                            Resources
+                        </h4>
+                        <ul style={{ listStyle: 'none', padding: 0 }}>
+                            <li style={{ marginBottom: '0.75rem' }}>
+                                <a
+                                    href="https://world.openfoodfacts.org"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                        color: 'var(--color-text-muted)',
+                                        textDecoration: 'none',
+                                        fontSize: '0.95rem',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '0.25rem',
+                                        transition: 'color 0.3s'
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.color = '#7c3aed'}
+                                    onMouseLeave={(e) => e.currentTarget.style.color = 'var(--color-text-muted)'}
+                                >
+                                    Open Food Facts
+                                    <ExternalLink size={14} />
+                                </a>
+                            </li>
+                            <li style={{ marginBottom: '0.75rem' }}>
+                                <Link
+                                    to="/privacy-policy"
+                                    style={{
+                                        color: 'var(--color-text-muted)',
+                                        textDecoration: 'none',
+                                        fontSize: '0.95rem',
+                                        transition: 'color 0.3s'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.color = '#7c3aed'}
+                                    onMouseLeave={(e) => e.target.style.color = 'var(--color-text-muted)'}
+                                >
+                                    Privacy Policy
+                                </Link>
+                            </li>
+                            <li style={{ marginBottom: '0.75rem' }}>
+                                <Link
+                                    to="/terms-of-service"
+                                    style={{
+                                        color: 'var(--color-text-muted)',
+                                        textDecoration: 'none',
+                                        fontSize: '0.95rem',
+                                        transition: 'color 0.3s'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.color = '#7c3aed'}
+                                    onMouseLeave={(e) => e.target.style.color = 'var(--color-text-muted)'}
+                                >
+                                    Terms of Service
+                                </Link>
+                            </li>
+                            <li style={{ marginBottom: '0.75rem' }}>
+                                <Link
+                                    to="/api-documentation"
+                                    style={{
+                                        color: 'var(--color-text-muted)',
+                                        textDecoration: 'none',
+                                        fontSize: '0.95rem',
+                                        transition: 'color 0.3s'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.color = '#7c3aed'}
+                                    onMouseLeave={(e) => e.target.style.color = 'var(--color-text-muted)'}
+                                >
+                                    API Documentation
+                                </Link>
+                            </li>
+                        </ul>
+                    </div>
+
+                    {/* Contact */}
+                    <div>
+                        <h4 style={{
+                            fontSize: '1.1rem',
+                            fontWeight: '700',
+                            marginBottom: '1rem',
+                            color: '#fff'
+                        }}>
+                            Connect
+                        </h4>
+                        <p style={{
+                            color: 'var(--color-text-muted)',
+                            fontSize: '0.95rem',
+                            marginBottom: '1rem',
+                            lineHeight: '1.6'
+                        }}>
+                            Have questions or feedback? We'd love to hear from you!
+                        </p>
+                        <div style={{ display: 'flex', gap: '1rem' }}>
+                            {[
+                                { icon: Github, href: '#', label: 'GitHub' },
+                                { icon: Linkedin, href: '#', label: 'LinkedIn' },
+                                { icon: Mail, href: 'mailto:contact@factsscan.com', label: 'Email' }
+                            ].map((social, idx) => (
+                                <a
+                                    key={idx}
+                                    href={social.href}
+                                    aria-label={social.label}
+                                    style={{
+                                        width: '40px',
+                                        height: '40px',
+                                        borderRadius: '50%',
+                                        background: 'rgba(255,255,255,0.05)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        color: '#fff',
+                                        textDecoration: 'none',
+                                        transition: 'all 0.3s'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.background = '#7c3aed';
+                                        e.currentTarget.style.transform = 'translateY(-2px)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                                        e.currentTarget.style.transform = 'translateY(0)';
+                                    }}
+                                >
+                                    <social.icon size={20} />
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Divider */}
+                <div style={{
+                    height: '1px',
+                    background: 'rgba(255,255,255,0.1)',
+                    marginBottom: '2rem'
+                }} />
+
+                {/* Bottom Section */}
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '1rem',
+                    textAlign: 'center'
+                }}>
+                    {/* Creator Credit */}
+                    <div style={{
+                        padding: '1rem 2rem',
+                        background: 'rgba(124, 58, 237, 0.1)',
+                        borderRadius: 'var(--radius-xl)',
+                        border: '1px solid rgba(124, 58, 237, 0.3)'
+                    }}>
+                        <p style={{
+                            fontSize: '1rem',
+                            marginBottom: '0.25rem'
+                        }}>
+                            <span style={{ color: 'var(--color-text-muted)' }}>Crafted with</span>{' '}
+                            <Heart size={16} color="#ec4899" fill="#ec4899" style={{ display: 'inline', verticalAlign: 'middle' }} />{' '}
+                            <span style={{ color: 'var(--color-text-muted)' }}>by</span>{' '}
+                            <strong style={{
+                                color: '#7c3aed',
+                                fontSize: '1.1rem'
+                            }}>Harshal Unde</strong>
+                        </p>
+                        <p style={{
+                            fontSize: '0.85rem',
+                            color: 'var(--color-text-muted)',
+                            fontStyle: 'italic'
+                        }}>
+                            Building technology for a healthier tomorrow
+                        </p>
+                    </div>
+
+                    {/* Copyright */}
+                    <p style={{
+                        color: 'var(--color-text-muted)',
+                        fontSize: '0.9rem'
+                    }}>
+                        © {currentYear} FactsScan. All rights reserved.
+                    </p>
+
+                    {/* Disclaimer */}
+                    <p style={{
+                        color: 'var(--color-text-muted)',
+                        fontSize: '0.8rem',
+                        maxWidth: '600px',
+                        lineHeight: '1.5'
+                    }}>
+                        Data sourced from Open Food Facts. FactsScan provides nutritional information for educational purposes.
+                        Always consult with healthcare professionals for dietary advice.
+                    </p>
+                </div>
+            </div>
+        </footer>
+    );
+};
+
+export default Footer;
