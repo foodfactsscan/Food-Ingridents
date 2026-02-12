@@ -218,10 +218,14 @@ const ProductDetails = () => {
                 <ChevronLeft size={20} /> Back to Search
             </Link>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '3rem' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3rem', alignItems: 'flex-start', justifyContent: 'center' }}>
 
-                {/* Left Column: Image & Highlights */}
-                <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+                {/* Left Column: Image & Highlights (Sticky) */}
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    style={{ flex: '1 1 350px', maxWidth: '450px', position: 'sticky', top: '6rem', zIndex: 10 }}
+                >
                     <div className="glass-panel" style={{ padding: '3rem', borderRadius: 'var(--radius-2xl)', textAlign: 'center', background: '#fff' }}>
                         <img
                             src={product.image_front_url || 'https://placehold.co/400x400?text=No+Image'}
@@ -266,8 +270,12 @@ const ProductDetails = () => {
                     )}
                 </motion.div>
 
-                {/* Right Column: Nutrition & Analysis */}
-                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                {/* Right Column: Nutrition & Analysis (Scrollable) */}
+                <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    style={{ flex: '1 1 400px', minWidth: '300px' }}
+                >
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
                             <h1 style={{ fontSize: '2.5rem', lineHeight: 1.1, marginBottom: '0.5rem' }}>
