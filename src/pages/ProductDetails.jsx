@@ -10,7 +10,6 @@ import TruthInRating from '../components/TruthInRating';
 import RatingBreakdown from '../components/RatingBreakdown';
 import ConcernSection from '../components/ConcernSection';
 import PositiveSection from '../components/PositiveSection';
-import ServingSizeTabs from '../components/ServingSizeTabs';
 import DetailedNutrients from '../components/DetailedNutrients';
 import BetterRatedOptions from '../components/BetterRatedOptions';
 import AllNutrientsSheet from '../components/AllNutrientsSheet';
@@ -177,8 +176,8 @@ const ProductDetails = () => {
                     {/* ★ Personalized Health Analysis ★ */}
                     {!isUnknown && <PersonalizedAnalysis product={product} />}
 
-                    {/* Serving Size Tabs */}
-                    {!isUnknown && <ServingSizeTabs product={product} />}
+
+
 
                     {isUnknown && (
                         <div className="glass-card" style={{ padding: '1.5rem', marginBottom: '2rem', border: '1px solid #eab308' }}>

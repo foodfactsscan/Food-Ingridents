@@ -331,6 +331,18 @@ const PersonalizedAnalysis = ({ product }) => {
                                 </div>
                             )}
 
+                            {/* ═══ FINAL VERDICT ═══ */}
+                            {!aiLoading && (allConcerns.length > 0 || allBenefits.length > 0) && (
+                                <FinalVerdict
+                                    concerns={allConcerns}
+                                    benefits={allBenefits}
+                                    product={product}
+                                    profile={profile}
+                                    scoreInfo={scoreInfo}
+                                    bmi={bmi}
+                                />
+                            )}
+
                             {/* Empty state */}
                             {allConcerns.length === 0 && allBenefits.length === 0 && !aiLoading && (
                                 <div style={{ textAlign: 'center', padding: '1.5rem', color: '#94a3b8' }}>
@@ -455,6 +467,206 @@ const ToggleButton = ({ expanded, onClick, total, color, label }) => (
 const formatSourceName = (id) => {
     if (!id) return '';
     return id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+};
+
+/* ═══════════════════════════════════════════
+   Final Verdict Component
+   ═══════════════════════════════════════════ */
+const FinalVerdict = ({ concerns, benefits, product, profile, scoreInfo, bmi }) => {
+    // Calculate verdict score
+    const highConcerns = concerns.filter(c => c.severity === 'high').length;
+    const mediumConcerns = concerns.filter(c => c.severity === 'medium').length;
+    const lowConcerns = concerns.filter(c => c.severity === 'low').length;
+    const totalBenefits = benefits.length;
+
+    // Weighted score: concerns subtract, benefits add
+    const score = (totalBenefits * 1) - (highConcerns * 3) - (mediumConcerns * 2) - (lowConcerns * 1);
+
+    // Determine verdict level
+    let verdict;
+    if (highConcerns >= 3 || score <= -6) {
+        verdict = {
+            level: 'avoid',
+            emoji: '🚫',
+            title: 'Best to Avoid This Product',
+            color: '#ef4444',
+            bg: 'rgba(239, 68, 68, 0.08)',
+            border: 'rgba(239, 68, 68, 0.25)',
+        };
+    } else if (highConcerns >= 1 || score <= -3) {
+        verdict = {
+            level: 'caution',
+            emoji: '⚠️',
+            title: 'Consume With Caution',
+            color: '#f97316',
+            bg: 'rgba(249, 115, 22, 0.08)',
+            border: 'rgba(249, 115, 22, 0.25)',
+        };
+    } else if (score <= 0) {
+        verdict = {
+            level: 'moderate',
+            emoji: '🔶',
+            title: 'Okay in Moderation',
+            color: '#eab308',
+            bg: 'rgba(234, 179, 8, 0.08)',
+            border: 'rgba(234, 179, 8, 0.25)',
+        };
+    } else if (score <= 3) {
+        verdict = {
+            level: 'good',
+            emoji: '✅',
+            title: 'Good Choice For You',
+            color: '#22c55e',
+            bg: 'rgba(34, 197, 94, 0.08)',
+            border: 'rgba(34, 197, 94, 0.25)',
+        };
+    } else {
+        verdict = {
+            level: 'great',
+            emoji: '🌟',
+            title: 'Great Choice For You!',
+            color: '#10b981',
+            bg: 'rgba(16, 185, 129, 0.08)',
+            border: 'rgba(16, 185, 129, 0.25)',
+        };
+    }
+
+    // Build explanation
+    const explanations = [];
+
+    if (highConcerns > 0) {
+        explanations.push(`${highConcerns} serious concern${highConcerns > 1 ? 's' : ''} detected for your health conditions`);
+    }
+    if (mediumConcerns > 0) {
+        explanations.push(`${mediumConcerns} moderate concern${mediumConcerns > 1 ? 's' : ''} to watch out for`);
+    }
+    if (totalBenefits > 0) {
+        explanations.push(`${totalBenefits} benefit${totalBenefits > 1 ? 's' : ''} aligned with your health goals`);
+    }
+
+    // Add specific advice based on verdict
+    let advice = '';
+    if (verdict.level === 'avoid') {
+        advice = 'This product has multiple ingredients or nutrients that could negatively impact your health based on your profile. Consider switching to a healthier alternative.';
+    } else if (verdict.level === 'caution') {
+        advice = 'This product has some ingredients that may not be ideal for your health conditions. If you choose to consume it, do so occasionally and in small portions.';
+    } else if (verdict.level === 'moderate') {
+        advice = 'This product is not harmful but not particularly beneficial either. Consuming it occasionally in moderate amounts should be fine.';
+    } else if (verdict.level === 'good') {
+        advice = 'This product aligns well with your health profile. It offers benefits that support your health goals with minimal concerns.';
+    } else {
+        advice = 'This product is an excellent match for your health profile! It provides multiple benefits that align perfectly with your goals.';
+    }
+
+    // Nutrition grade info
+    const grade = product?.nutrition_grades?.toUpperCase();
+    const gradeText = { 'A': 'excellent', 'B': 'good', 'C': 'average', 'D': 'poor', 'E': 'very poor' }[grade];
+
+    return (
+        <div style={{
+            marginTop: '1.5rem', marginBottom: '1.5rem',
+            padding: '1.25rem 1.25rem',
+            background: verdict.bg,
+            border: `2px solid ${verdict.border}`,
+            borderRadius: '16px',
+        }}>
+            {/* Verdict Header */}
+            <div style={{
+                display: 'flex', alignItems: 'center', gap: '0.75rem',
+                marginBottom: '0.75rem',
+            }}>
+                <span style={{ fontSize: '2rem' }}>{verdict.emoji}</span>
+                <div>
+                    <h4 style={{
+                        fontSize: '1.1rem', fontWeight: '800', color: verdict.color,
+                        margin: 0, lineHeight: 1.2
+                    }}>
+                        Final Verdict: {verdict.title}
+                    </h4>
+                    <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '0.2rem 0 0 0' }}>
+                        Based on {concerns.length} concern{concerns.length !== 1 ? 's' : ''} & {benefits.length} benefit{benefits.length !== 1 ? 's' : ''} from your profile
+                    </p>
+                </div>
+            </div>
+
+            {/* Score Summary Bar */}
+            <div style={{
+                display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap'
+            }}>
+                {highConcerns > 0 && (
+                    <span style={{
+                        padding: '0.25rem 0.65rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '700',
+                        background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444',
+                    }}>
+                        ⛔ {highConcerns} High Risk
+                    </span>
+                )}
+                {mediumConcerns > 0 && (
+                    <span style={{
+                        padding: '0.25rem 0.65rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '700',
+                        background: 'rgba(249, 115, 22, 0.15)', color: '#f97316',
+                    }}>
+                        ⚠️ {mediumConcerns} Medium Risk
+                    </span>
+                )}
+                {lowConcerns > 0 && (
+                    <span style={{
+                        padding: '0.25rem 0.65rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '700',
+                        background: 'rgba(234, 179, 8, 0.15)', color: '#eab308',
+                    }}>
+                        🔸 {lowConcerns} Low Risk
+                    </span>
+                )}
+                {totalBenefits > 0 && (
+                    <span style={{
+                        padding: '0.25rem 0.65rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '700',
+                        background: 'rgba(34, 197, 94, 0.15)', color: '#22c55e',
+                    }}>
+                        ✅ {totalBenefits} Benefit{totalBenefits !== 1 ? 's' : ''}
+                    </span>
+                )}
+                {gradeText && (
+                    <span style={{
+                        padding: '0.25rem 0.65rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '700',
+                        background: 'rgba(139, 92, 246, 0.15)', color: '#a78bfa',
+                    }}>
+                        🏷️ Nutri-Grade {grade} ({gradeText})
+                    </span>
+                )}
+            </div>
+
+            {/* Advice */}
+            <p style={{
+                fontSize: '0.88rem', color: '#cbd5e1', lineHeight: '1.6',
+                margin: 0, padding: '0.75rem',
+                background: 'rgba(0, 0, 0, 0.15)', borderRadius: '10px',
+            }}>
+                {advice}
+            </p>
+
+            {/* Key points */}
+            {explanations.length > 0 && (
+                <div style={{ marginTop: '0.75rem' }}>
+                    {explanations.map((exp, i) => (
+                        <div key={i} style={{
+                            display: 'flex', alignItems: 'center', gap: '0.4rem',
+                            fontSize: '0.8rem', color: '#94a3b8', padding: '0.2rem 0',
+                        }}>
+                            <span style={{ color: verdict.color }}>•</span> {exp}
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Disclaimer */}
+            <p style={{
+                fontSize: '0.7rem', color: '#475569', margin: '0.75rem 0 0 0',
+                fontStyle: 'italic', lineHeight: '1.4'
+            }}>
+                ⚕️ This is an automated recommendation based on your health profile. Always consult your doctor or a nutritionist for personalized dietary advice.
+            </p>
+        </div>
+    );
 };
 
 export default PersonalizedAnalysis;
