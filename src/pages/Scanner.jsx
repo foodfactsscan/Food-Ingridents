@@ -220,7 +220,14 @@ const Scanner = () => {
     };
 
     return (
-        <div className="container" style={{ paddingBottom: '4rem' }}>
+        <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.3 }}
+            className="container"
+            style={{ paddingBottom: '4rem' }}
+        >
             <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center', marginBottom: '3rem' }}>
                 <h1 className="section-title">Find Healthy Food</h1>
                 <p className="section-subtitle">Search products, scan barcodes, or browse expert-curated lists.</p>
@@ -741,7 +748,7 @@ const Scanner = () => {
                     <p style={{ color: 'var(--color-text-muted)' }}>Scanning database...</p>
                 </div>
             )}
-        </div>
+        </motion.div>
     );
 };
 

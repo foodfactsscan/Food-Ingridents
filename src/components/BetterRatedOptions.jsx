@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { CheckCircle, ChevronRight } from 'lucide-react';
 
 const BetterRatedOptions = ({ alternatives = [] }) => {
+    console.log('🎯 BetterRatedOptions received:', alternatives.length, 'alternatives');
+
     // Don't render if no REAL alternatives
     if (!alternatives || alternatives.length === 0) return null;
 

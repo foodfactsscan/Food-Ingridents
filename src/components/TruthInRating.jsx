@@ -73,14 +73,6 @@ const TruthInRating = ({ rating }) => {
             }}>
                 {verdict.text}
             </div>
-
-            <div style={{
-                fontSize: '0.9rem',
-                color: 'var(--color-text-muted)',
-                textAlign: 'center'
-            }}>
-                FactsScan Rating
-            </div>
         </motion.div>
     );
 };

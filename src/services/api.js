@@ -114,6 +114,15 @@ const normalizeProduct = (product) => {
     if (!product.categories_tags) product.categories_tags = [];
     if (!product.additives_tags) product.additives_tags = [];
 
+    // Ensure quantity is present (try to extract from name if missing)
+    if (!product.quantity && !product.product_quantity && product.product_name) {
+        // Regex to match quantity patterns: 50g, 50 g, 1kg, 1 kg, 500ml, 1 L, etc.
+        const qtyMatch = product.product_name.match(/\b(\d+(\.\d+)?)\s*(g|kg|ml|l|L|Gm|Gms)\b/i);
+        if (qtyMatch) {
+            product.quantity = qtyMatch[0].replace(/\s+/g, '').toLowerCase(); // Normalize: " 50 g " -> "50g"
+        }
+    }
+
     return product;
 };
 
@@ -251,7 +260,30 @@ export const getProductByBarcode = async (barcode) => {
         console.warn('Retry also failed:', error.message);
     }
 
-    // STEP 4: Product not found anywhere
+    // STEP 5: AI Fallback - Use Gemini to search for product
+    console.log('🤖 Trying AI-powered search...');
+    try {
+        const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+        const response = await fetch(`${BACKEND_URL}/api/products/${barcode}`);
+
+        if (response.ok) {
+            const data = await response.json();
+            if (data.status === 1 && data.product) {
+                const normalized = normalizeProduct(data.product);
+                const result = {
+                    status: 1,
+                    product: { ...normalized, ai_generated: true }
+                };
+                setCache(cacheKey, result, 7200000); // Cache for 2 hours only
+                console.log('✅ AI found product:', normalized.product_name);
+                return result;
+            }
+        }
+    } catch (error) {
+        console.warn('AI search failed:', error.message);
+    }
+
+    // STEP 6: Product not found anywhere
     console.log('❌ Product not found:', barcode);
     return null;
 };
@@ -493,22 +525,70 @@ export const getHealthierAlternatives = async (category, currentGrade) => {
     if (cached) return cached;
 
     try {
-        const url = `${BASE_URL}?tagtype_0=categories&tag_contains_0=contains&tag_0=${category}&tagtype_1=nutrition_grades&tag_contains_1=contains&tag_1=a&action=process&json=1&page_size=6&sort_by=unique_scans_n`;
+        // Clean category tag
+        const cleanCat = category.replace('en:', '');
 
-        const response = await fetchWithTimeout(url, 10000);
-        const data = await response.json();
+        // Fetch grade A, B, and C alternatives in parallel — max results
+        const [dataA, dataB, dataC] = await Promise.all([
+            quickFetch(`${BASE_URL}?tagtype_0=categories&tag_contains_0=contains&tag_0=${cleanCat}&tagtype_1=nutrition_grades&tag_contains_1=contains&tag_1=a&action=process&json=1&page_size=50&sort_by=unique_scans_n`),
+            quickFetch(`${BASE_URL}?tagtype_0=categories&tag_contains_0=contains&tag_0=${cleanCat}&tagtype_1=nutrition_grades&tag_contains_1=contains&tag_1=b&action=process&json=1&page_size=50&sort_by=unique_scans_n`),
+            quickFetch(`${BASE_URL}?tagtype_0=categories&tag_contains_0=contains&tag_0=${cleanCat}&tagtype_1=nutrition_grades&tag_contains_1=contains&tag_1=c&action=process&json=1&page_size=50&sort_by=unique_scans_n`),
+        ]);
 
-        if (data.products && data.products.length < 3) {
-            const urlB = `${BASE_URL}?tagtype_0=categories&tag_contains_0=contains&tag_0=${category}&tagtype_1=nutrition_grades&tag_contains_1=contains&tag_1=b&action=process&json=1&page_size=6&sort_by=unique_scans_n`;
-            const responseB = await fetchWithTimeout(urlB, 10000);
-            const dataB = await responseB.json();
+        let allProducts = [
+            ...(dataA?.products || []),
+            ...(dataB?.products || []),
+            ...(dataC?.products || []),
+        ];
 
-            const alternatives = [...(data.products || []), ...(dataB.products || [])].slice(0, 5);
-            setCache(cacheKey, alternatives);
-            return alternatives;
+        // If very few results, try broader category (remove prefix like en:)
+        // FIXED: Only broaden if category is very specific (3+ parts) to avoid mixing unrelated items
+        if (allProducts.length < 3 && cleanCat.split('-').length > 2) {
+            const broadCat = cleanCat.split('-').slice(0, 2).join('-');
+            const broadData = await quickFetch(`${BASE_URL}?tagtype_0=categories&tag_contains_0=contains&tag_0=${broadCat}&tagtype_1=nutrition_grades&tag_contains_1=contains&tag_1=a&action=process&json=1&page_size=50&sort_by=unique_scans_n`);
+            if (broadData?.products) {
+                // Filter broader results to ensure they still relate to original category
+                // e.g. if original is 'instant-noodles', 'noodles' is fine.
+                // But 'plant-based-foods' -> 'plant-based' is too broad.
+                const relevant = broadData.products.filter(p =>
+                    (p.categories_tags || []).some(t => t.includes(cleanCat.split('-')[0]))
+                );
+                allProducts = [...allProducts, ...relevant];
+            }
         }
 
-        const alternatives = (data.products || []).slice(0, 5);
+        // Filter: must have name and preferably an image
+        const filtered = allProducts.filter(p =>
+            p.product_name &&
+            p.product_name.length > 1 &&
+            p.product_name !== 'Unknown'
+        );
+
+        // Deduplicate by ID
+        const seen = new Set();
+        const unique = filtered.filter(p => {
+            const id = p._id || p.code;
+            if (seen.has(id)) return false;
+            seen.add(id);
+            return true;
+        });
+
+        // Sort ascending by grade: A first (healthiest) → B → C
+        const gradeOrder = { 'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4 };
+        unique.sort((a, b) => {
+            const gradeA = gradeOrder[a.nutrition_grades] ?? 5;
+            const gradeB = gradeOrder[b.nutrition_grades] ?? 5;
+            if (gradeA !== gradeB) return gradeA - gradeB;
+            // Within same grade, prefer products with images
+            const aHasImg = a.image_front_url || a.image_front_small_url ? 0 : 1;
+            const bHasImg = b.image_front_url || b.image_front_small_url ? 0 : 1;
+            return aHasImg - bHasImg;
+        });
+
+        return unique.slice(0, 50); // Limit to 50 best alternatives
+
+        // Return ALL alternatives — no limit
+        const alternatives = unique;
         setCache(cacheKey, alternatives);
         return alternatives;
 

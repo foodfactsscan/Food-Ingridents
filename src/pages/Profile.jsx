@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Save, AlertCircle, CheckCircle, Activity, Shield, Plus, X, Edit3, Heart, Target, Thermometer, Scale } from 'lucide-react';
+import { User, Save, AlertCircle, CheckCircle, Activity, Shield, Plus, X, Edit3, Heart, Target, Thermometer, Scale, History, ChevronRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import profileService from '../services/profileService';
 import { CHRONIC_DISEASES_LIST, TEMPORARY_ISSUES_LIST, GOALS_LIST, GENDER_LIST, calculateBMI, getBMICategory } from '../services/personalizedEngine';
@@ -14,6 +14,7 @@ const Profile = () => {
     const [saveSuccess, setSaveSuccess] = useState(false);
     const [error, setError] = useState('');
     const [activeSection, setActiveSection] = useState(0);
+    const [history, setHistory] = useState([]);
 
     const [formData, setFormData] = useState({
         firstName: '',
@@ -61,6 +62,7 @@ const Profile = () => {
                 customHealthIssues: result.profile.customHealthIssues || [],
                 customGoals: result.profile.customGoals || []
             });
+            setHistory(result.profile.history || []);
         } else {
             setFormData(prev => ({
                 ...prev,
@@ -207,6 +209,7 @@ const Profile = () => {
         { title: 'Health Conditions', icon: <Heart size={18} />, color: '#ef4444' },
         { title: 'Current Issues', icon: <Thermometer size={18} />, color: '#f59e0b' },
         { title: 'Custom Entries', icon: <Edit3 size={18} />, color: '#06b6d4' },
+        { title: 'Scan History', icon: <History size={18} />, color: '#ec4899' },
     ];
 
     return (
@@ -534,6 +537,79 @@ const Profile = () => {
                                 The AI evaluates your specific conditions against each product's ingredients and nutrition to give you personalized insights.
                             </div>
                         </div>
+                    </SectionCard>
+
+                    {/* ═══════════ Section 6: Scan History ═══════════ */}
+                    <SectionCard id="section-6" title="Scan History" icon={<History size={20} />} color="#ec4899" desc="Products you have recently scanned.">
+                        {history.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>
+                                <History size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
+                                <p>No scan history yet.</p>
+                                <button
+                                    type="button"
+                                    onClick={() => navigate('/scan')}
+                                    style={{
+                                        marginTop: '1rem',
+                                        padding: '0.6rem 1.2rem',
+                                        borderRadius: '50px',
+                                        background: 'rgba(236, 72, 153, 0.1)',
+                                        color: '#ec4899',
+                                        border: '1px solid rgba(236, 72, 153, 0.3)',
+                                        cursor: 'pointer',
+                                        fontWeight: '600'
+                                    }}
+                                >
+                                    Start Scanning
+                                </button>
+                            </div>
+                        ) : (
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+                                {history.map((item, idx) => (
+                                    <div
+                                        key={idx}
+                                        onClick={() => navigate(`/product/${item.barcode}`)}
+                                        style={{
+                                            display: 'flex', alignItems: 'center', gap: '1rem',
+                                            padding: '1rem', borderRadius: '16px',
+                                            background: 'rgba(255,255,255,0.03)',
+                                            border: '1px solid rgba(255,255,255,0.05)',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s'
+                                        }}
+                                        className="hover:bg-white/5"
+                                    >
+                                        <div style={{
+                                            width: '50px', height: '50px', borderRadius: '10px', overflow: 'hidden',
+                                            background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                                        }}>
+                                            <img
+                                                src={item.image || 'https://placehold.co/100x100?text=No+Img'}
+                                                alt={item.productName}
+                                                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                            />
+                                        </div>
+                                        <div style={{ flex: 1, overflow: 'hidden' }}>
+                                            <div style={{ fontWeight: '600', color: '#e2e8f0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                {item.productName}
+                                            </div>
+                                            <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+                                                {item.brand}
+                                            </div>
+                                        </div>
+                                        {/* Grade Badge */}
+                                        <div style={{
+                                            width: '32px', height: '32px', borderRadius: '50%',
+                                            background: item.grade?.toLowerCase() === 'a' ? '#22c55e' : (item.grade?.toLowerCase() === 'e' ? '#ef4444' : '#f59e0b'),
+                                            color: '#fff', fontWeight: '800', fontSize: '0.9rem',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+                                        }}>
+                                            {item.grade?.toUpperCase() || '?'}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </SectionCard>
 
                     {/* ═══════════ Sticky Save Bar ═══════════ */}

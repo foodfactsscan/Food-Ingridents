@@ -33,6 +33,35 @@ function ScrollToTop() {
   return null;
 }
 
+// Extracted Routes component to access useLocation hook
+function AnimatedRoutes() {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<Home />} />
+        <Route path="/scan" element={<Scanner />} />
+        <Route path="/product/:barcode" element={<ProductDetails />} />
+        <Route path="/how-it-works" element={<HowItWorks />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/insights" element={<Insights />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route path="/api-documentation" element={<ApiDocumentation />} />
+
+        {/* Authentication Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/verify-otp" element={<OTPVerification />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+      </Routes>
+    </AnimatePresence>
+  );
+}
+
 function App() {
   return (
     <AuthProvider>
@@ -41,27 +70,7 @@ function App() {
         <Navbar />
         <main style={{ flex: 1, paddingTop: '80px', display: 'flex', flexDirection: 'column' }}>
           <ErrorBoundary>
-            <AnimatePresence mode="wait">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/scan" element={<Scanner />} />
-                <Route path="/product/:barcode" element={<ProductDetails />} />
-                <Route path="/how-it-works" element={<HowItWorks />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/insights" element={<Insights />} />
-                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                <Route path="/terms-of-service" element={<TermsOfService />} />
-                <Route path="/api-documentation" element={<ApiDocumentation />} />
-
-                {/* Authentication Routes */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/verify-otp" element={<OTPVerification />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-              </Routes>
-            </AnimatePresence>
+            <AnimatedRoutes />
           </ErrorBoundary>
         </main>
         <Footer />

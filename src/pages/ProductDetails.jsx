@@ -8,12 +8,15 @@ import { motion } from 'framer-motion';
 import { ChevronLeft, AlertTriangle, CheckCircle, Leaf, Activity } from 'lucide-react';
 import TruthInRating from '../components/TruthInRating';
 import RatingBreakdown from '../components/RatingBreakdown';
+import NutrientPieChart from '../components/NutrientPieChart';
 import ConcernSection from '../components/ConcernSection';
 import PositiveSection from '../components/PositiveSection';
 import DetailedNutrients from '../components/DetailedNutrients';
 import BetterRatedOptions from '../components/BetterRatedOptions';
 import AllNutrientsSheet from '../components/AllNutrientsSheet';
 import PersonalizedAnalysis from '../components/PersonalizedAnalysis';
+import { useAuth } from '../context/AuthContext';
+import historyService from '../services/historyService';
 
 const ProductDetails = () => {
     const { barcode } = useParams();
@@ -23,6 +26,7 @@ const ProductDetails = () => {
     const [detectedAllergens, setDetectedAllergens] = useState([]);
     const [truthInRating, setTruthInRating] = useState(null);
     const [showAllNutrients, setShowAllNutrients] = useState(false);
+    const { isAuthenticated, loading: authLoading } = useAuth();
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -42,23 +46,119 @@ const ProductDetails = () => {
                     setDetectedAllergens(found);
                 }
 
-                // Fetch Alternatives for low ratings (async, don't block UI)
-                const grade = data.product.nutrition_grades;
-                if (grade && ['c', 'd', 'e'].includes(grade.toLowerCase()) && data.product.categories) {
-                    const mainCategory = data.product.categories_tags?.[0] || data.product.main_category;
-                    if (mainCategory) {
-                        // Don't await - load alternatives in background
-                        getHealthierAlternatives(mainCategory, grade).then(alts => {
-                            setAlternatives(alts);
-                        });
+
+                // Fetch Healthier Alternatives - with robust Indian product fallback
+                const fetchAlternatives = async () => {
+                    const grade = data.product.nutrition_grades;
+                    const categoryTag = data.product.categories_tags?.[0]
+                        || data.product.main_category
+                        || data.product.categories?.split(',')[0]?.trim();
+
+                    console.log('🔍 Product category:', categoryTag, '| Grade:', grade);
+
+                    let alternatives = [];
+
+                    // Step 1: Try OpenFoodFacts API
+                    if (categoryTag) {
+                        try {
+                            const apiAlts = await getHealthierAlternatives(categoryTag, grade || 'c');
+                            console.log('✅ API returned:', apiAlts?.length || 0, 'alternatives');
+                            alternatives = (apiAlts || []).filter(a =>
+                                (a._id || a.code) !== barcode && a.product_name
+                            );
+                        } catch (err) {
+                            console.error('❌ API error:', err);
+                        }
                     }
-                }
+
+                    // Step 2: Fallback to local Indian DB if API returned few/no results
+                    if (alternatives.length < 3) {
+                        console.log('⚠️ Few API results, adding from Indian DB...');
+                        const { INDIAN_PRODUCTS_DB } = await import('../services/indianProductsDb');
+
+                        // Detect category type from product
+                        const productName = (data.product.product_name || '').toLowerCase();
+                        const categories = (data.product.categories || '').toLowerCase();
+                        const keywords = (data.product._keywords || []).join(' ').toLowerCase();
+                        const text = `${productName} ${categories} ${keywords}`;
+
+                        let categoryKeywords = [];
+
+                        // 1. Chocolates & Sweets
+                        if (text.includes('chocolate') || text.includes('cocoa') || text.includes('candy') || text.includes('bar')) {
+                            categoryKeywords = ['chocolate', 'candy', 'bar'];
+                        }
+                        // 2. Biscuits & Cookies
+                        else if (text.includes('biscuit') || text.includes('cookie') || text.includes('cracker') || text.includes('rusk')) {
+                            categoryKeywords = ['biscuit', 'cookie', 'cracker'];
+                        }
+                        // 3. Noodles & Pasta
+                        else if (text.includes('noodle') || text.includes('pasta') || text.includes('macaroni') || text.includes('vermicelli') || text.includes('instant food')) {
+                            categoryKeywords = ['noodle', 'pasta', 'instant'];
+                        }
+                        // 4. Chips & Namkeen (Savory Snacks)
+                        else if (text.includes('chips') || text.includes('crisp') || text.includes('namkeen') || text.includes('bhujia') || text.includes('mixture') || text.includes('sev')) {
+                            categoryKeywords = ['chips', 'namkeen', 'bhujia', 'snack']; // 'snack' here maps to savory usually
+                        }
+                        // 5. Beverages
+                        else if (text.includes('beverage') || text.includes('drink') || text.includes('juice') || text.includes('soda') || text.includes('cola') || text.includes('coffee') || text.includes('tea')) {
+                            categoryKeywords = ['beverage', 'drink', 'juice', 'coffee', 'tea'];
+                        }
+                        // 6. Dairy
+                        else if (text.includes('milk') || text.includes('butter') || text.includes('cheese') || text.includes('paneer') || text.includes('dairy')) {
+                            categoryKeywords = ['milk', 'butter', 'cheese', 'dairy'];
+                        }
+                        // 7. Staples
+                        else if (text.includes('atta') || text.includes('flour') || text.includes('rice') || text.includes('dal') || text.includes('pulse') || text.includes('oil') || text.includes('ghee') || text.includes('salt') || text.includes('sugar') || text.includes('spice') || text.includes('masala')) {
+                            categoryKeywords = ['atta', 'flour', 'salt', 'sugar', 'spice', 'masala', 'oil'];
+                        }
+                        // 8. General Snacks (Fallback but try to be safe)
+                        else if (text.includes('snack')) {
+                            categoryKeywords = ['snack', 'biscuit', 'chips']; // Broad snack
+                        }
+                        else {
+                            // If completely unknown, don't show random stuff. 
+                            // Or maybe show top rated healthy items generally? No, risks irrelevance.
+                            // Let's show nothing or a "Try these healthy snacks" mix.
+                            // User said: "don't show biscuits for noodles".
+                            // So safest is EMPTY if no match.
+                            categoryKeywords = [];
+                        }
+
+                        // Find matching products from Indian DB
+                        const localAlts = Object.values(INDIAN_PRODUCTS_DB).filter(p => {
+                            if (p._id === barcode) return false; // Skip current product
+                            const pName = (p.product_name || '').toLowerCase();
+                            const pCat = (p.categories || '').toLowerCase();
+                            return categoryKeywords.some(kw => pName.includes(kw) || pCat.includes(kw));
+                        });
+
+                        // Add local alternatives that aren't already in the list
+                        const existingIds = new Set(alternatives.map(a => a._id || a.code));
+                        const uniqueLocal = localAlts.filter(p => !existingIds.has(p._id));
+                        alternatives = [...alternatives, ...uniqueLocal];
+
+                        console.log('✅ Added', uniqueLocal.length, 'from Indian DB. Total:', alternatives.length);
+                    }
+
+                    console.log('🎯 Final alternatives count:', alternatives.length);
+                    setAlternatives(alternatives);
+                };
+
+                fetchAlternatives();
             }
             setLoading(false);
         };
 
         if (barcode) fetchProduct();
     }, [barcode]);
+
+    useEffect(() => {
+        if (product && isAuthenticated && !authLoading) {
+            // Add to history silently
+            historyService.addToHistory(product).catch(err => console.error('History sync error:', err));
+        }
+    }, [product, isAuthenticated, authLoading]);
 
     if (loading) {
         return (
@@ -107,7 +207,13 @@ const ProductDetails = () => {
     const isVegetarian = product.labels_tags?.some(tag => tag.includes('vegetarian')) || product.ingredients_analysis_tags?.some(tag => tag.includes('vegetarian'));
 
     return (
-        <div className="container" style={{ paddingBottom: '6rem' }}>
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="container"
+            style={{ paddingBottom: '6rem' }}
+        >
             <Link to="/scan" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginBottom: '2rem', color: 'var(--color-text-muted)' }}>
                 <ChevronLeft size={20} /> Back to Search
             </Link>
@@ -163,7 +269,58 @@ const ProductDetails = () => {
                 {/* Right Column: Nutrition & Analysis */}
                 <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
                     <div>
-                        <h1 style={{ fontSize: '2.5rem', lineHeight: 1.1, marginBottom: '0.5rem' }}>{product.product_name}</h1>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                            <h1 style={{ fontSize: '2.5rem', lineHeight: 1.1, marginBottom: '0.5rem' }}>
+                                {product.product_name}
+                                {(() => {
+                                    // Get quantity from various potential fields
+                                    let quantity = product.quantity || product.product_quantity;
+
+                                    // Or try to build it from value + unit
+                                    if (!quantity && product.net_weight_value && product.net_weight_unit) {
+                                        quantity = `${product.net_weight_value}${product.net_weight_unit}`;
+                                    }
+
+                                    if (!quantity) return null;
+
+                                    // Clean up quantity string (trim, lowercase for check)
+                                    const cleanQty = quantity.toString().trim();
+                                    const lowerName = (product.product_name || '').toLowerCase();
+
+                                    // Don't show if already in name (simple check)
+                                    // e.g. Name: "Maggi 70g", Qty: "70 g" -> avoid "Maggi 70g (70 g)"
+                                    // Remove spaces for robust comparison: "70 g" -> "70g"
+                                    const condensedQty = cleanQty.replace(/\s+/g, '').toLowerCase();
+                                    const condensedName = lowerName.replace(/\s+/g, '');
+
+                                    if (condensedName.includes(condensedQty)) return null;
+
+                                    return <span style={{ fontSize: '0.6em', color: 'var(--color-text-muted)', marginLeft: '0.5rem', fontWeight: '400' }}>({cleanQty})</span>;
+                                })()}
+                            </h1>
+                            {product.ai_generated && (
+                                <span style={{
+                                    padding: '0.35rem 0.9rem',
+                                    borderRadius: '20px',
+                                    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                                    color: '#fff',
+                                    fontSize: '0.75rem',
+                                    fontWeight: '700',
+                                    letterSpacing: '0.5px',
+                                    boxShadow: '0 2px 8px rgba(99, 102, 241, 0.3)',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.4rem'
+                                }}>
+                                    🤖 AI Generated
+                                </span>
+                            )}
+                        </div>
+                        {product.ai_generated && (
+                            <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '0.5rem', marginBottom: '0' }}>
+                                ⚠️ Product data estimated by AI - nutritional values are approximate
+                            </p>
+                        )}
                         <p style={{ fontSize: '1.2rem', color: 'var(--color-text-muted)' }}>{product.brands}</p>
                     </div>
 
@@ -204,6 +361,9 @@ const ProductDetails = () => {
 
                     {/* Rating Breakdown */}
                     <RatingBreakdown breakdown={truthInRating?.breakdown} />
+
+                    {/* Nutrient Visualization */}
+                    {!isUnknown && product.nutriments && <NutrientPieChart nutriments={product.nutriments} />}
 
                     {/* What Should Concern You Section */}
                     {!isUnknown && (
@@ -259,7 +419,7 @@ const ProductDetails = () => {
                 show={showAllNutrients}
                 onClose={() => setShowAllNutrients(false)}
             />
-        </div>
+        </motion.div>
     );
 };
 
