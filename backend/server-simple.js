@@ -64,12 +64,17 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-    console.log(`\n✅ Server running on http://localhost:${PORT}`);
-    console.log(`📱 Frontend URL: ${process.env.CLIENT_URL || 'http://localhost:5173 (any localhost port accepted)'}`);
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-        console.log(`\n🔧 DEV MODE: OTP codes will be returned in API responses (no email needed)`);
-        console.log(`   To enable real emails, configure SMTP in .env file`);
-        console.log(`   See GMAIL-SMTP-SETUP.md for instructions\n`);
-    }
-});
+// Start server only if not running in Vercel (serverless)
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`\n✅ Server running on http://localhost:${PORT}`);
+        console.log(`📱 Frontend URL: ${process.env.CLIENT_URL || 'http://localhost:5173 (any localhost port accepted)'}`);
+        if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+            console.log(`\n🔧 DEV MODE: OTP codes will be returned in API responses (no email needed)`);
+            console.log(`   To enable real emails, configure SMTP in .env file`);
+            console.log(`   See GMAIL-SMTP-SETUP.md for instructions\n`);
+        }
+    });
+}
+
+export default app;
