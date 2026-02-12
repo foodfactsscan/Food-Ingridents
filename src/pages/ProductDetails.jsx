@@ -250,38 +250,8 @@ const ProductDetails = () => {
                 </motion.div>
             </div>
 
-            {alternatives.length > 0 && (
-                <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} style={{ marginTop: '5rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                        <div style={{ padding: '0.6rem', background: 'var(--color-primary)', borderRadius: '12px', color: '#000' }}><CheckCircle size={24} /></div>
-                        <div>
-                            <h2 style={{ fontSize: '2rem', fontWeight: '700', lineHeight: 1 }}>Healthier Alternatives</h2>
-                            <p style={{ color: 'var(--color-text-muted)' }}>Smart recommendations based on better nutrition grades.</p>
-                        </div>
-                    </div>
 
-                    <div style={{ display: 'flex', gap: '1.5rem', overflowX: 'auto', paddingBottom: '2rem' }}>
-                        {alternatives.map((alt) => (
-                            <Link to={`/product/${alt._id}`} key={alt._id} style={{ textDecoration: 'none', color: 'inherit', flex: '0 0 280px' }}>
-                                <div className="glass-card" style={{ padding: '1rem', borderRadius: 'var(--radius-xl)', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                                    <div style={{ height: '180px', background: '#fff', borderRadius: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', position: 'relative' }}>
-                                        <div style={{ position: 'absolute', top: '10px', right: '10px', background: '#22c55e', color: '#fff', fontWeight: '800', width: '30px', height: '30px', display: 'flex', fontSize: '0.8rem', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' }}>
-                                            {alt.nutrition_grades?.toUpperCase()}
-                                        </div>
-                                        <img
-                                            src={alt.image_front_small_url || 'https://placehold.co/150x150'}
-                                            alt={alt.product_name}
-                                            style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
-                                        />
-                                    </div>
-                                    <h4 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.2rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{alt.product_name}</h4>
-                                    <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>{alt.brands}</p>
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
-                </motion.div>
-            )}
+
 
             {/* All Nutrients Bottom Sheet */}
             <AllNutrientsSheet
