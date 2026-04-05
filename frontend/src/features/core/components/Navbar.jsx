@@ -34,7 +34,6 @@ const Navbar = () => {
                     <Link to="/" style={{ color: 'var(--color-text)', textDecoration: 'none' }}>Home</Link>
                     <Link to="/scan" style={{ color: 'var(--color-text)', textDecoration: 'none' }}>Scanner</Link>
                     <Link to="/compare" style={{ color: 'var(--color-text)', textDecoration: 'none' }}>Compare</Link>
-                    {isAuthenticated && <Link to="/dashboard" style={{ color: 'var(--color-text)', textDecoration: 'none' }}>Dashboard</Link>}
                     <Link to="/how-it-works" style={{ color: 'var(--color-text)', textDecoration: 'none' }}>How It Works</Link>
 
                     <button
