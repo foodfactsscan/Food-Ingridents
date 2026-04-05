@@ -1,97 +1,47 @@
-/**
- * Simple JSON File-based Database
- * Persists data to JSON files in /backend/data/ folder
- * Data survives server restarts — no external DB needed
- */
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import mongoose from 'mongoose';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const DATA_DIR = path.join(__dirname, 'data');
+let isConnected = false;
 
-// Ensure data directory exists
-if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-    console.log('📂 Created data directory:', DATA_DIR);
-}
+const connectDB = async () => {
+    if (isConnected) return;
 
-class JsonDB {
-    constructor(filename) {
-        this.filePath = path.join(DATA_DIR, `${filename}.json`);
-        this.data = this._load();
+    const MONGODB_URI = process.env.MONGODB_URI;
+
+    if (!MONGODB_URI) {
+        console.error('❌ MONGODB_URI is not set in .env file!');
+        console.error('   Please add your MongoDB Atlas connection string to backend/.env');
+        process.exit(1);
     }
 
-    /** Load data from file or initialize empty */
-    _load() {
-        try {
-            if (fs.existsSync(this.filePath)) {
-                const raw = fs.readFileSync(this.filePath, 'utf-8');
-                const parsed = JSON.parse(raw);
-                console.log(`📄 Loaded ${Object.keys(parsed).length} records from ${path.basename(this.filePath)}`);
-                return parsed;
-            }
-        } catch (err) {
-            console.error(`⚠️ Error loading ${this.filePath}:`, err.message);
-        }
-        return {};
+    try {
+        await mongoose.connect(MONGODB_URI, {
+            serverSelectionTimeoutMS: 5000,  // Timeout after 5s instead of 30s
+            socketTimeoutMS: 45000,
+        });
+
+        isConnected = true;
+        console.log('✅ MongoDB Atlas connected successfully');
+
+        // Log database name
+        const dbName = mongoose.connection.db.databaseName;
+        console.log(`📦 Database: ${dbName}`);
+
+    } catch (error) {
+        console.error('❌ MongoDB connection failed:', error.message);
+        console.error('   Check your MONGODB_URI in backend/.env');
+        process.exit(1);
     }
+};
 
-    /** Save data to file (atomic write) */
-    _save() {
-        try {
-            const tempPath = this.filePath + '.tmp';
-            fs.writeFileSync(tempPath, JSON.stringify(this.data, null, 2), 'utf-8');
-            fs.renameSync(tempPath, this.filePath);
-        } catch (err) {
-            console.error(`⚠️ Error saving ${this.filePath}:`, err.message);
-        }
-    }
+// Handle connection events
+mongoose.connection.on('disconnected', () => {
+    console.warn('⚠️  MongoDB disconnected. Reconnecting...');
+    isConnected = false;
+});
 
-    /** Check if key exists */
-    has(key) {
-        return key in this.data;
-    }
+mongoose.connection.on('error', (err) => {
+    console.error('❌ MongoDB error:', err.message);
+    isConnected = false;
+});
 
-    /** Get record by key */
-    get(key) {
-        return this.data[key] || null;
-    }
-
-    /** Set/update record by key */
-    set(key, value) {
-        this.data[key] = value;
-        this._save();
-    }
-
-    /** Delete record by key */
-    delete(key) {
-        if (key in this.data) {
-            delete this.data[key];
-            this._save();
-            return true;
-        }
-        return false;
-    }
-
-    /** Get all records */
-    getAll() {
-        return { ...this.data };
-    }
-
-    /** Count records */
-    count() {
-        return Object.keys(this.data).length;
-    }
-}
-
-// Create database instances
-const usersDB = new JsonDB('users');
-const profilesDB = new JsonDB('profiles');
-const ingredientsDB = new JsonDB('ingredients');
-const flaggedDB = new JsonDB('flagged_substances');
-const adminLogDB = new JsonDB('admin_log');
-
-export { usersDB, profilesDB, ingredientsDB, flaggedDB, adminLogDB, JsonDB };
-export default { usersDB, profilesDB, ingredientsDB, flaggedDB, adminLogDB };
+export default connectDB;

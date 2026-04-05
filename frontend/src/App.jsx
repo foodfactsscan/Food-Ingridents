@@ -1,0 +1,94 @@
+
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
+import { useEffect } from 'react';
+
+import Navbar from './features/core/components/Navbar';
+import Footer from './features/core/components/Footer';
+import ErrorBoundary from './features/core/components/ErrorBoundary';
+import Home from './features/info/pages/Home';
+import Scanner from './features/scanner/pages/Scanner';
+import ProductDetails from './features/product/pages/ProductDetails';
+import HowItWorks from './features/info/pages/HowItWorks';
+import About from './features/info/pages/About';
+import Insights from './features/info/pages/Insights';
+import PrivacyPolicy from './features/info/pages/PrivacyPolicy';
+import TermsOfService from './features/info/pages/TermsOfService';
+import ApiDocumentation from './features/info/pages/ApiDocumentation';
+import Login from './features/auth/pages/Login';
+import Signup from './features/auth/pages/Signup';
+import Profile from './features/user/pages/Profile';
+import OTPVerification from './features/auth/pages/OTPVerification';
+import ForgotPassword from './features/auth/pages/ForgotPassword';
+import ResetPassword from './features/auth/pages/ResetPassword';
+import Compare from './features/product/pages/Compare';
+import Admin from './features/info/pages/Admin';
+import LabelScanner from './features/scanner/pages/LabelScanner';
+import Dashboard from './features/user/pages/Dashboard';
+import { AuthProvider } from './features/auth/context/AuthContext';
+import OfflineStatus from './features/core/components/OfflineStatus';
+import ChatAssistant from './features/core/components/ChatAssistant';
+import './App.css';
+
+// Component to scroll to top on route change
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
+// Extracted Routes component to access useLocation hook
+function AnimatedRoutes() {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<Home />} />
+        <Route path="/scan" element={<Scanner />} />
+        <Route path="/product/:barcode" element={<ProductDetails />} />
+        <Route path="/how-it-works" element={<HowItWorks />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/insights" element={<Insights />} />
+        <Route path="/compare" element={<Compare />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/label-scan" element={<LabelScanner />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route path="/api-documentation" element={<ApiDocumentation />} />
+
+        {/* Authentication Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/verify-otp" element={<OTPVerification />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+      </Routes>
+    </AnimatePresence>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <OfflineStatus />
+      <Router>
+        <ScrollToTop />
+        <Navbar />
+        <main style={{ flex: 1, paddingTop: '80px', display: 'flex', flexDirection: 'column' }}>
+          <ErrorBoundary>
+            <AnimatedRoutes />
+          </ErrorBoundary>
+        </main>
+        <Footer />
+        <ChatAssistant />
+      </Router>
+    </AuthProvider>
+  );
+}
+
+export default App;

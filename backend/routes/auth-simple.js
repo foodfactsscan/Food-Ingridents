@@ -1,62 +1,46 @@
 import express from 'express';
-import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
 import { sendOTPEmail, generateOTP, isSmtpConfigured } from '../services/emailService.js';
-import { usersDB } from '../db.js';
 
 const router = express.Router();
 
-// OTPs stay in-memory (they're temporary, 5-min expiry)
+// OTPs stay in-memory (temporary, 5-min expiry — no DB needed)
 const otps = new Map();
 
-// JWT secret from env or auto-generated
 const JWT_SECRET = process.env.JWT_SECRET || 'factsscan-dev-secret-change-in-production';
-const JWT_EXPIRES_IN = '30d'; // Token valid for 30 days
+const JWT_EXPIRES_IN = '30d';
 
-// Helper: Check if we're in dev mode (no SMTP)
 const isDevMode = () => !isSmtpConfigured();
 
-// Helper: Generate JWT token
 const generateToken = (user) => {
     return jwt.sign(
-        { email: user.email, firstName: user.firstName, lastName: user.lastName },
+        { id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName },
         JWT_SECRET,
         { expiresIn: JWT_EXPIRES_IN }
     );
 };
 
-// Helper: Verify JWT token
 export const verifyToken = (token) => {
     try {
         return jwt.verify(token, JWT_SECRET);
-    } catch (err) {
+    } catch {
         return null;
     }
 };
 
-// Middleware: Authenticate token
 export const authenticateToken = (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ message: 'Authentication required' });
     }
-
     const token = authHeader.split(' ')[1];
     const decoded = verifyToken(token);
-
     if (!decoded) {
-        // Fallback: try base64 decode for old tokens
-        try {
-            const legacy = JSON.parse(Buffer.from(token, 'base64').toString());
-            if (legacy.email) {
-                req.userEmail = legacy.email;
-                return next();
-            }
-        } catch (e) { /* ignore */ }
         return res.status(401).json({ message: 'Invalid or expired token. Please login again.' });
     }
-
     req.userEmail = decoded.email;
+    req.userId = decoded.id;
     next();
 };
 
@@ -70,35 +54,29 @@ router.post('/signup', async (req, res) => {
         if (!firstName || !lastName || !email || !password) {
             return res.status(400).json({ message: 'All fields are required' });
         }
-
         if (password.length < 6) {
             return res.status(400).json({ message: 'Password must be at least 6 characters' });
         }
 
         const emailLower = email.toLowerCase().trim();
 
-        // Check if user exists and already verified
-        const existingUser = usersDB.get(emailLower);
-        if (existingUser && existingUser.isVerified) {
+        // Check if already registered and verified
+        const existing = await User.findOne({ email: emailLower });
+        if (existing && existing.isVerified) {
             return res.status(400).json({ message: 'Email already registered. Please login.' });
         }
 
-        // Hash password
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        // Upsert: create or overwrite unverified user
+        if (existing) {
+            existing.firstName = firstName;
+            existing.lastName = lastName;
+            existing.password = password; // will be hashed by pre-save hook
+            await existing.save();
+        } else {
+            await User.create({ firstName, lastName, email: emailLower, password });
+        }
 
-        // Store user (not verified yet)
-        usersDB.set(emailLower, {
-            firstName,
-            lastName,
-            email: emailLower,
-            password: hashedPassword,
-            isVerified: false,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-        });
-
-        // Generate and store OTP
+        // Generate OTP
         const otp = generateOTP();
         otps.set(emailLower, {
             otp,
@@ -107,7 +85,6 @@ router.post('/signup', async (req, res) => {
             attempts: 0
         });
 
-        // Send Email (or fallback to console in dev mode)
         await sendOTPEmail(emailLower, otp, 'signup');
 
         const response = {
@@ -115,8 +92,6 @@ router.post('/signup', async (req, res) => {
             message: 'OTP sent to your email. Please verify to complete registration.',
             email: emailLower
         };
-
-        // In dev mode (no SMTP), include OTP in response
         if (isDevMode()) {
             response.devOtp = otp;
             response.message = 'DEV MODE: Your OTP is shown below. Enter it to verify.';
@@ -138,7 +113,6 @@ router.post('/verify-otp', async (req, res) => {
         const emailLower = email.toLowerCase().trim();
         const otpData = otps.get(emailLower);
 
-        // Validation
         if (!otpData || otpData.type !== type) {
             return res.status(400).json({ message: 'No OTP found. Please request a new one.' });
         }
@@ -155,22 +129,17 @@ router.post('/verify-otp', async (req, res) => {
             return res.status(400).json({ message: `Invalid OTP. ${5 - otpData.attempts} attempts remaining.` });
         }
 
-        // OTP Verified — clear it
         otps.delete(emailLower);
 
         if (type === 'signup') {
-            const user = usersDB.get(emailLower);
+            const user = await User.findOne({ email: emailLower });
             if (!user) return res.status(404).json({ message: 'User not found' });
 
-            // Mark as verified and save to file DB
             user.isVerified = true;
-            user.verifiedAt = new Date().toISOString();
-            user.updatedAt = new Date().toISOString();
-            usersDB.set(emailLower, user);
+            user.verifiedAt = new Date();
+            await user.save();
 
-            // Generate JWT token
             const token = generateToken(user);
-
             res.json({
                 success: true,
                 message: 'Email verified successfully!',
@@ -183,7 +152,6 @@ router.post('/verify-otp', async (req, res) => {
                 }
             });
         } else {
-            // forgot-password OTP verified
             res.json({ success: true, message: 'OTP Verified' });
         }
     } catch (error) {
@@ -200,14 +168,14 @@ router.post('/resend-otp', async (req, res) => {
         const { email, type } = req.body;
         const emailLower = email.toLowerCase().trim();
 
-        if (type === 'forgot-password' && !usersDB.has(emailLower)) {
-            return res.status(404).json({ message: 'No account found with this email' });
+        if (type === 'forgot-password') {
+            const exists = await User.findOne({ email: emailLower });
+            if (!exists) return res.status(404).json({ message: 'No account found with this email' });
         }
 
         const otp = generateOTP();
         otps.set(emailLower, {
-            otp,
-            type,
+            otp, type,
             expiresAt: Date.now() + 5 * 60 * 1000,
             attempts: 0
         });
@@ -215,12 +183,10 @@ router.post('/resend-otp', async (req, res) => {
         await sendOTPEmail(emailLower, otp, type);
 
         const response = { success: true, message: 'New OTP sent' };
-
         if (isDevMode()) {
             response.devOtp = otp;
             response.message = 'DEV MODE: New OTP generated. Check below.';
         }
-
         res.json(response);
     } catch (error) {
         console.error('Resend error:', error);
@@ -234,35 +200,34 @@ router.post('/resend-otp', async (req, res) => {
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-
         if (!email || !password) {
             return res.status(400).json({ message: 'Email and password are required' });
         }
 
         const emailLower = email.toLowerCase().trim();
-        const user = usersDB.get(emailLower);
 
+        // Must select password since it's select:false in schema
+        const user = await User.findOne({ email: emailLower }).select('+password');
         if (!user) {
-            return res.status(401).json({ message: 'Invalid email or password. Please check your credentials.' });
+            return res.status(401).json({ message: 'Invalid email or password.' });
         }
 
-        // Compare hashed password
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await user.comparePassword(password);
         if (!isMatch) {
-            return res.status(401).json({ message: 'Invalid email or password. Please check your credentials.' });
+            return res.status(401).json({ message: 'Invalid email or password.' });
         }
 
         if (!user.isVerified) {
-            return res.status(403).json({ message: 'Email not verified. Please sign up again to verify.', needsVerification: true });
+            return res.status(403).json({
+                message: 'Email not verified. Please sign up again to verify.',
+                needsVerification: true
+            });
         }
 
-        // Update last login
-        user.lastLogin = new Date().toISOString();
-        usersDB.set(emailLower, user);
+        user.lastLogin = new Date();
+        await user.save();
 
-        // Generate JWT token
         const token = generateToken(user);
-
         res.json({
             success: true,
             message: 'Login successful',
@@ -288,7 +253,8 @@ router.post('/forgot-password', async (req, res) => {
         const { email } = req.body;
         const emailLower = email.toLowerCase().trim();
 
-        if (!usersDB.has(emailLower)) {
+        const user = await User.findOne({ email: emailLower });
+        if (!user) {
             return res.status(404).json({ message: 'No account found with this email' });
         }
 
@@ -303,12 +269,10 @@ router.post('/forgot-password', async (req, res) => {
         await sendOTPEmail(emailLower, otp, 'forgot-password');
 
         const response = { success: true, message: 'Password reset OTP sent to your email' };
-
         if (isDevMode()) {
             response.devOtp = otp;
             response.message = 'DEV MODE: Password reset OTP generated. Check below.';
         }
-
         res.json(response);
     } catch (error) {
         console.error('Forgot password error:', error);
@@ -322,25 +286,16 @@ router.post('/forgot-password', async (req, res) => {
 router.post('/reset-password', async (req, res) => {
     try {
         const { email, password } = req.body;
-
         if (!password || password.length < 6) {
             return res.status(400).json({ message: 'Password must be at least 6 characters' });
         }
 
         const emailLower = email.toLowerCase().trim();
-        const user = usersDB.get(emailLower);
+        const user = await User.findOne({ email: emailLower });
+        if (!user) return res.status(404).json({ message: 'User not found' });
 
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // Hash new password
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(password, salt);
-        user.updatedAt = new Date().toISOString();
-        usersDB.set(emailLower, user);
-
-        // Clear any OTPs
+        user.password = password; // re-hashed by pre-save hook
+        await user.save();
         otps.delete(emailLower);
 
         res.json({ success: true, message: 'Password reset successfully. Please login with your new password.' });
