@@ -5,6 +5,7 @@
   "description": "Root package manager to start both frontend and backend",
   "scripts": {
     "dev": "npx concurrently -k -c \"blue,green\" -n \"FRONTEND,BACKEND\" \"npm run dev --prefix frontend\" \"npm run dev --prefix backend\"",
-    "install:all": "npm install --prefix frontend && npm install --prefix backend"
+    "install:all": "npm install --prefix frontend && npm install --prefix backend",
+    "build": "npm run install:all && npm run build --prefix frontend"
   }
 }
