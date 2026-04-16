@@ -9,7 +9,7 @@ const PrivacyPolicy = () => {
             icon: Database,
             title: "Information We Collect",
             content: [
-                "When you use FactsScan, we collect minimal information to provide you with the best possible experience:",
+                "When you use True FoodBite, we collect minimal information to provide you with the best possible experience:",
                 "• Product barcode scans for nutritional analysis",
                 "• Search queries to improve our product database",
                 "• Usage analytics to enhance app performance",
@@ -33,7 +33,7 @@ const PrivacyPolicy = () => {
             icon: Cookie,
             title: "Cookies and Tracking",
             content: [
-                "FactsScan uses minimal cookies and tracking technologies:",
+                "True FoodBite uses minimal cookies and tracking technologies:",
                 "• Essential cookies for app functionality",
                 "• Analytics cookies to understand user behavior (anonymized)",
                 "• Preference cookies to remember your settings",
@@ -73,7 +73,7 @@ const PrivacyPolicy = () => {
                 "• Request deletion of your data",
                 "• Opt-out of analytics and marketing communications",
                 "• Export your data in a portable format",
-                "To exercise these rights, please contact us at privacy@factsscan.com"
+                "To exercise these rights, please contact us at privacy@truefoodbite.com"
             ]
         }
     ];
@@ -143,16 +143,16 @@ const PrivacyPolicy = () => {
                     marginBottom: '1rem',
                     color: '#fff'
                 }}>
-                    Welcome to FactsScan
+                    Welcome to True FoodBite
                 </h2>
                 <p style={{
                     color: 'var(--color-text-muted)',
                     lineHeight: '1.8',
                     fontSize: '1rem'
                 }}>
-                    At FactsScan, we are committed to protecting your privacy and ensuring transparency in how we handle your data.
+                    At True FoodBite, we are committed to protecting your privacy and ensuring transparency in how we handle your data.
                     This Privacy Policy explains our practices regarding the collection, use, and disclosure of information when you
-                    use our food scanning and nutritional analysis service. By using FactsScan, you agree to the terms outlined in
+                    use our food scanning and nutritional analysis service. By using True FoodBite, you agree to the terms outlined in
                     this policy. If you have any questions or concerns, please don't hesitate to contact us.
                 </p>
             </div>
@@ -284,24 +284,24 @@ const PrivacyPolicy = () => {
                     flexWrap: 'wrap'
                 }}>
                     <a
-                        href="mailto:privacy@factsscan.com"
+                        href="mailto:privacy@truefoodbite.com"
                         style={{
                             color: '#7c3aed',
                             textDecoration: 'none',
                             fontWeight: '600'
                         }}
                     >
-                        privacy@factsscan.com
+                        privacy@truefoodbite.com
                     </a>
                     <a
-                        href="mailto:support@factsscan.com"
+                        href="mailto:support@truefoodbite.com"
                         style={{
                             color: '#7c3aed',
                             textDecoration: 'none',
                             fontWeight: '600'
                         }}
                     >
-                        support@factsscan.com
+                        support@truefoodbite.com
                     </a>
                 </div>
             </div>

@@ -160,7 +160,7 @@ const Signup = () => {
                         fontSize: '1rem',
                         color: 'var(--color-text-muted)'
                     }}>
-                        Join FactsScan for healthier food choices
+                        Join True FoodBite for healthier food choices
                     </p>
                 </div>
 

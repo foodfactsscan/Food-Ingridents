@@ -1,4 +1,4 @@
-# 📋 FactsScan - Pending Tasks & Priority List
+# 📋 True FoodBite - Pending Tasks & Priority List
 
 ## ✅ Completed Tasks
 1.  **Debug Quantity Display Logic** (Verified)

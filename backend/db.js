@@ -14,8 +14,11 @@ const connectDB = async () => {
     }
 
     try {
+        const redactedUri = MONGODB_URI.replace(/:([^@]+)@/, ':****@');
+        console.log(`🔌 Attempting to connect to: ${redactedUri}`);
+
         await mongoose.connect(MONGODB_URI, {
-            serverSelectionTimeoutMS: 5000,  // Timeout after 5s instead of 30s
+            serverSelectionTimeoutMS: 5000,
             socketTimeoutMS: 45000,
         });
 

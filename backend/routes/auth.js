@@ -144,7 +144,7 @@ router.post('/verify-otp', rateLimiter(5, 15), async (req, res) => {
             const token = generateToken(user._id);
 
             res.json({
-                message: 'Email verified successfully! Welcome to FactsScan.',
+                message: 'Email verified successfully! Welcome to True FoodBite.',
                 token,
                 user: {
                     id: user._id,

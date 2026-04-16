@@ -1,6 +1,8 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import connectDB from './db.js';
 import authRoutes from './routes/auth-simple.js';
 import profileRoutes from './routes/profile.js';
@@ -8,7 +10,7 @@ import aiRoutes from './routes/ai.js';
 import productRoutes from './routes/products.js';
 import adminRoutes from './routes/admin.js';
 
-dotenv.config();
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -42,7 +44,7 @@ app.use('/api/admin', adminRoutes);
 app.get('/api/health', (req, res) => {
     res.json({
         status: 'OK',
-        message: 'FactsScan API is running',
+        message: 'True FoodBite API is running',
         database: 'MongoDB Atlas',
         smtp: process.env.SMTP_USER ? 'configured' : 'not configured (dev mode)'
     });

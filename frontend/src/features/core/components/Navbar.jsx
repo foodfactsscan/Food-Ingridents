@@ -28,7 +28,7 @@ const Navbar = () => {
         }}>
             <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Link to="/" style={{ fontSize: '1.5rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-text)', textDecoration: 'none' }}>
-                    <Scan color="var(--color-primary)" /> Facts<span className="text-gradient">Scan</span>
+                    <Scan color="var(--color-primary)" /> True <span className="text-gradient">FoodBite</span>
                 </Link>
                 <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
                     <Link to="/" style={{ color: 'var(--color-text)', textDecoration: 'none' }}>Home</Link>

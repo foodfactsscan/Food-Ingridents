@@ -9,9 +9,9 @@ const TermsOfService = () => {
             icon: CheckCircle,
             title: "Acceptance of Terms",
             content: [
-                "By accessing and using FactsScan, you accept and agree to be bound by the terms and conditions of this agreement. " +
+                "By accessing and using True FoodBite, you accept and agree to be bound by the terms and conditions of this agreement. " +
                 "If you do not agree to these terms, please do not use our service.",
-                "These Terms of Service constitute a legally binding agreement between you and FactsScan. We reserve the right to " +
+                "These Terms of Service constitute a legally binding agreement between you and True FoodBite. We reserve the right to " +
                 "update these terms at any time, and your continued use of the service constitutes acceptance of any changes."
             ]
         },
@@ -19,21 +19,21 @@ const TermsOfService = () => {
             icon: Users,
             title: "User Responsibilities",
             content: [
-                "As a user of FactsScan, you agree to:",
+                "As a user of True FoodBite, you agree to:",
                 "• Use the service for lawful purposes only",
                 "• Provide accurate information when scanning products",
                 "• Not attempt to reverse engineer or compromise our systems",
                 "• Not use automated tools to scrape or download our content",
-                "• Respect intellectual property rights of FactsScan and third parties",
+                "• Respect intellectual property rights of True FoodBite and third parties",
                 "• Not misuse or abuse our service in any way",
-                "Violation of these responsibilities may result in suspension or termination of your access to FactsScan."
+                "Violation of these responsibilities may result in suspension or termination of your access to True FoodBite."
             ]
         },
         {
             icon: Scale,
             title: "Service Description",
             content: [
-                "FactsScan provides nutritional information and analysis for food products by:",
+                "True FoodBite provides nutritional information and analysis for food products by:",
                 "• Scanning product barcodes to retrieve nutritional data",
                 "• Searching our database of food products from Open Food Facts",
                 "• Providing health grades and nutritional insights",
@@ -49,11 +49,11 @@ const TermsOfService = () => {
                 "Important disclaimers:",
                 "• Nutritional information is sourced from third-party databases (primarily Open Food Facts)",
                 "• We do not guarantee the accuracy, completeness, or timeliness of product information",
-                "• FactsScan is not a substitute for professional medical or dietary advice",
+                "• True FoodBite is not a substitute for professional medical or dietary advice",
                 "• Always verify nutritional information with the actual product packaging",
                 "• Consult healthcare professionals for personalized dietary recommendations",
                 "• We are not liable for decisions made based on information from our service",
-                "Use of FactsScan does not create a healthcare provider-patient relationship."
+                "Use of True FoodBite does not create a healthcare provider-patient relationship."
             ]
         },
         {
@@ -61,7 +61,7 @@ const TermsOfService = () => {
             title: "Limitation of Liability",
             content: [
                 "To the fullest extent permitted by law:",
-                "• FactsScan and its creators shall not be liable for any indirect, incidental, special, or consequential damages",
+                "• True FoodBite and its creators shall not be liable for any indirect, incidental, special, or consequential damages",
                 "• We are not responsible for any health issues arising from dietary decisions",
                 "• Our total liability shall not exceed the amount you paid to use our service (currently free)",
                 "• We are not liable for service interruptions, data loss, or technical issues",
@@ -73,9 +73,9 @@ const TermsOfService = () => {
             icon: FileText,
             title: "Intellectual Property",
             content: [
-                "All content, features, and functionality of FactsScan are owned by us and protected by copyright, trademark, " +
+                "All content, features, and functionality of True FoodBite are owned by us and protected by copyright, trademark, " +
                 "and other intellectual property laws.",
-                "You are granted a limited, non-exclusive, non-transferable license to use FactsScan for personal, non-commercial purposes.",
+                "You are granted a limited, non-exclusive, non-transferable license to use True FoodBite for personal, non-commercial purposes.",
                 "You may not:",
                 "• Reproduce, distribute, or create derivative works from our content",
                 "• Use our trademarks or branding without permission",
@@ -125,7 +125,7 @@ const TermsOfService = () => {
                     maxWidth: '700px',
                     margin: '0 auto 1rem'
                 }}>
-                    Please read these terms carefully before using FactsScan. Your use of our service constitutes acceptance of these terms.
+                    Please read these terms carefully before using True FoodBite. Your use of our service constitutes acceptance of these terms.
                 </p>
                 <p style={{
                     fontSize: '0.9rem',
@@ -150,14 +150,14 @@ const TermsOfService = () => {
                     marginBottom: '1rem',
                     color: '#fff'
                 }}>
-                    Welcome to FactsScan
+                    Welcome to True FoodBite
                 </h2>
                 <p style={{
                     color: 'var(--color-text-muted)',
                     lineHeight: '1.8',
                     fontSize: '1rem'
                 }}>
-                    These Terms of Service ("Terms") govern your use of FactsScan, a web-based nutritional information platform.
+                    These Terms of Service ("Terms") govern your use of True FoodBite, a web-based nutritional information platform.
                     By accessing or using our service, you agree to comply with and be bound by these Terms. If you disagree with
                     any part of these terms, you do not have permission to access our service. We encourage you to read these
                     terms carefully and contact us if you have any questions.
@@ -282,7 +282,7 @@ const TermsOfService = () => {
                     fontSize: '1rem'
                 }}>
                     These Terms shall be governed and construed in accordance with the laws of India, without regard to its conflict
-                    of law provisions. Any disputes arising from these Terms or your use of FactsScan shall be subject to the exclusive
+                    of law provisions. Any disputes arising from these Terms or your use of True FoodBite shall be subject to the exclusive
                     jurisdiction of the courts in India.
                 </p>
             </div>
@@ -318,24 +318,24 @@ const TermsOfService = () => {
                     flexWrap: 'wrap'
                 }}>
                     <a
-                        href="mailto:legal@factsscan.com"
+                        href="mailto:legal@truefoodbite.com"
                         style={{
                             color: '#7c3aed',
                             textDecoration: 'none',
                             fontWeight: '600'
                         }}
                     >
-                        legal@factsscan.com
+                        legal@truefoodbite.com
                     </a>
                     <a
-                        href="mailto:support@factsscan.com"
+                        href="mailto:support@truefoodbite.com"
                         style={{
                             color: '#7c3aed',
                             textDecoration: 'none',
                             fontWeight: '600'
                         }}
                     >
-                        support@factsscan.com
+                        support@truefoodbite.com
                     </a>
                 </div>
             </div>

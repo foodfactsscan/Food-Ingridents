@@ -1,7 +1,7 @@
 {
-    "name": "factsscan-backend",
+    "name": "true-foodbite-backend",
     "version": "1.0.0",
-    "description": "FactsScan Backend API with OTP Email Verification",
+    "description": "True FoodBite Backend API with OTP Email Verification",
     "type": "module",
     "main": "server.js",
     "scripts": {

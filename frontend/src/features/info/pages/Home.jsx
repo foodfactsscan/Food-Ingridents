@@ -146,7 +146,7 @@ const Home = () => {
                                 India is witnessing a growing awareness around food safety. With lifestyle diseases on the rise, it's crucial to know what goes into your packaged foods.
                             </p>
                             <p style={{ color: 'var(--color-text-muted)', fontSize: '1.1rem' }}>
-                                Deciphering complex labels can be overwhelming. FactsScan empowers you with quick, reliable insights to avoid hidden sugars, palm oil, and preservatives.
+                                Deciphering complex labels can be overwhelming. True FoodBite empowers you with quick, reliable insights to avoid hidden sugars, palm oil, and preservatives.
                             </p>
                         </div>
                         <div className="glass-panel" style={{ padding: '2rem', borderRadius: 'var(--radius-2xl)' }}>
@@ -221,7 +221,7 @@ const Home = () => {
             <section style={{ padding: '6rem 0', background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(132, 204, 22, 0.05) 100%)' }}>
                 <div className="container">
                     <h2 className="section-title">Real-World Use Cases</h2>
-                    <p className="section-subtitle">How FactsScan improves daily lives across India.</p>
+                    <p className="section-subtitle">How True FoodBite improves daily lives across India.</p>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem', marginTop: '4rem' }}>
                         <UseCaseCard

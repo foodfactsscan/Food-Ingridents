@@ -1,6 +1,6 @@
 # 📧 Professional Email Setup Guide (Gmail SMTP)
 
-To enable **real emails** for your FactsScan application (Signup OTP, Password Resets, etc.), follow these professional steps:
+To enable **real emails** for your True FoodBite application (Signup OTP, Password Resets, etc.), follow these professional steps:
 
 ### ⚡ STEP 1: Secure Your Google Account
 1. Go to your **[Google Account Settings](https://myaccount.google.com/)**.
@@ -12,7 +12,7 @@ To enable **real emails** for your FactsScan application (Signup OTP, Password R
 
 1. In the search bar at the top of your Google Account, type **"App Passwords"**.
 2. Select **App Passwords**.
-3. For **App Name**, type: `FactsScan Product`.
+3. For **App Name**, type: `True FoodBite Product`.
 4. Click **Create**.
 5. **CRITICAL:** Copy the 16-character code (e.g., `xxxx xxxx xxxx xxxx`) that appears in the yellow box. This is your professional SMTP key.
 

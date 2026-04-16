@@ -13,8 +13,7 @@ function getRuleBasedReply(message) {
     if (/how are (you|u)\??/.test(msg) || msg === 'how r u' || msg === 'how r you')
         return "I'm doing great, thanks for asking! 😊 I'm NutriBot — always ready to help you make healthier food choices.\n\nTry asking me:\n• \"Is this safe for diabetics?\"\n• \"What does NOVA score mean?\"\n• \"How much sugar per day is safe?\"";
 
-    if (/who are you|what are you|tell me about yourself|what is nutribot|what can you do|what's your name|what is your name/.test(msg))
-        return "I'm **NutriBot** 🤖, your AI food safety assistant built into FactsScan!\n\nI can help with:\n• Food safety for health conditions (diabetes, BP, heart, PCOS…)\n• Understanding ingredients, E-numbers & additives\n• Reading nutrition labels & NOVA scores\n• Safe foods for kids, pregnancy & more\n\nJust ask me anything food-related!";
+        return "I'm **NutriBot** 🤖, your AI food safety assistant built into True FoodBite!\n\nI can help with:\n• Food safety for health conditions (diabetes, BP, heart, PCOS…)\n• Understanding ingredients, E-numbers & additives\n• Reading nutrition labels & NOVA scores\n• Safe foods for kids, pregnancy & more\n\nJust ask me anything food-related!";
 
     if (/^(thank|thanks|thank you|thx|ty|tysm|great|awesome|cool|nice|perfect|excellent|wonderful|amazing)/.test(msg))
         return "You're welcome! 😊 Feel free to ask me anything else about food safety or nutrition. Happy to help!";
@@ -23,7 +22,7 @@ function getRuleBasedReply(message) {
         return "Got it! 👍 Let me know if you have any other food or nutrition questions — I'm here to help!";
 
     if (/^(bye|goodbye|see you|see ya|later|cya|take care)/.test(msg))
-        return "Goodbye! 👋 Stay healthy and keep scanning with FactsScan. Come back anytime!";
+        return "Goodbye! 👋 Stay healthy and keep scanning with True FoodBite. Come back anytime!";
 
     if (msg.includes('joke') || msg.includes('funny'))
         return "Here's a food one 😄: Why did the tomato turn red? Because it saw the salad dressing! 🍅\n\nOn a serious note — I'm best at food safety questions. Ask me about ingredients, nutrition, or health conditions!";
@@ -44,11 +43,11 @@ function getRuleBasedReply(message) {
     if (msg.includes('pcos') || msg.includes('pcod'))
         return '🌸 For PCOS, focus on low-GI foods, high fibre, and anti-inflammatory ingredients. Avoid refined sugars and ultra-processed foods (NOVA 4). Omega-3-rich foods are often recommended.';
     if (msg.includes('allerg') || msg.includes('intoleran'))
-        return '⚠️ Always check the Allergens section on the product page. Common allergens: gluten, dairy, nuts, soy, eggs. FactsScan highlights detected allergens in red at the top of every product page.';
+        return '⚠️ Always check the Allergens section on the product page. Common allergens: gluten, dairy, nuts, soy, eggs. True FoodBite highlights detected allergens in red at the top of every product page.';
     if (msg.includes('child') || msg.includes('kid') || msg.includes('baby') || msg.includes('infant'))
         return '👶 For children, avoid artificial colours (E102, E110, E122, E129, E133), excess sugar, and high sodium — linked to hyperactivity. Choose NOVA Group 1 or 2. Whole foods are always best for growing kids.';
     if (msg.includes('preserv') || msg.includes('additive') || msg.includes('e number') || msg.includes('e-number'))
-        return '🧪 E-numbers are EU codes for food additives — not all harmful. E300 (Vitamin C) is good; watch out for E621 (MSG), E211 (Sodium Benzoate), and artificial colours like E102 & E110. FactsScan colour-codes additives by risk level.';
+        return '🧪 E-numbers are EU codes for food additives — not all harmful. E300 (Vitamin C) is good; watch out for E621 (MSG), E211 (Sodium Benzoate), and artificial colours like E102 & E110. True FoodBite colour-codes additives by risk level.';
     if (msg.includes('sugar') || msg.includes('sweet'))
         return '🍬 WHO recommends <25g added sugar/day (≈6 tsp). "No added sugar" ≠ sugar-free — check for natural sugars too. Artificial sweeteners carry mixed long-term evidence.';
     if (msg.includes('sodium') || msg.includes('salt'))
@@ -60,7 +59,7 @@ function getRuleBasedReply(message) {
     if (msg.includes('ingredient') || msg.includes('label') || msg.includes('how to read'))
         return '📋 Ingredients are listed from most to least by weight. If sugar is in the first 3, it\'s high-sugar. Short, recognisable lists are best. "Enriched", "refined", or "hydrogenated" = red flags.';
     if (msg.includes('vegetarian') || msg.includes('vegan'))
-        return '🌿 Watch for hidden animal-derived additives: gelatin (E441), cochineal/carmine (E120), L-cysteine (E910) in bread. FactsScan shows a green Vegetarian badge when confirmed by Open Food Facts.';
+        return '🌿 Watch for hidden animal-derived additives: gelatin (E441), cochineal/carmine (E120), L-cysteine (E910) in bread. True FoodBite shows a green Vegetarian badge when confirmed by Open Food Facts.';
     if (msg.includes('weight') || msg.includes('calori') || msg.includes('weight loss'))
         return '⚖️ High-protein and high-fibre foods keep you fuller longer. Avoid ultra-processed NOVA 4 foods. Even "diet" or "light" products can be high in sugar or sweeteners.';
     if (msg.includes('pregnan') || msg.includes('expecting'))

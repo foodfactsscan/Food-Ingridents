@@ -30,7 +30,7 @@ const Footer = () => {
                             WebkitTextFillColor: 'transparent',
                             marginBottom: '1rem'
                         }}>
-                            FactsScan
+                            True FoodBite
                         </h3>
                         <p style={{
                             color: 'var(--color-text-muted)',
@@ -195,7 +195,7 @@ const Footer = () => {
                             {[
                                 { icon: Github, href: '#', label: 'GitHub' },
                                 { icon: Linkedin, href: '#', label: 'LinkedIn' },
-                                { icon: Mail, href: 'mailto:contact@factsscan.com', label: 'Email' }
+                                { icon: Mail, href: 'mailto:contact@truefoodbite.com', label: 'Email' }
                             ].map((social, idx) => (
                                 <a
                                     key={idx}
@@ -277,7 +277,7 @@ const Footer = () => {
                         color: 'var(--color-text-muted)',
                         fontSize: '0.9rem'
                     }}>
-                        © {currentYear} FactsScan. All rights reserved.
+                        © {currentYear} True FoodBite. All rights reserved.
                     </p>
 
                     {/* Disclaimer */}
@@ -287,7 +287,7 @@ const Footer = () => {
                         maxWidth: '600px',
                         lineHeight: '1.5'
                     }}>
-                        Data sourced from Open Food Facts. FactsScan provides nutritional information for educational purposes.
+                        Data sourced from Open Food Facts. True FoodBite provides nutritional information for educational purposes.
                         Always consult with healthcare professionals for dietary advice.
                     </p>
                 </div>

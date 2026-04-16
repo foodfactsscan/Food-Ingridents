@@ -10,7 +10,7 @@ import { INDIAN_PRODUCTS_DB } from './indianProductsDb';
 // Simple in-memory cache with localStorage fallback for persistence
 const memoryCache = new Map();
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours for memory cache
-const PERSISTENT_CACHE_KEY = 'factsscan_products_v1';
+const PERSISTENT_CACHE_KEY = 'truefoodbite_products_v1';
 
 // Initialize persistent cache from localStorage
 const getPersistentCache = () => {
@@ -82,7 +82,7 @@ const fetchWithTimeout = async (url, timeout = 12000, retries = 2) => {
             const response = await fetch(url, {
                 signal: controller.signal,
                 headers: {
-                    'User-Agent': 'FactsScan/2.0 - Indian Food Scanner App - factsscan.com'
+                    'User-Agent': 'True FoodBite/2.0 - Indian Food Scanner App - truefoodbite.com'
                 }
             });
             clearTimeout(id);
@@ -112,7 +112,7 @@ const quickFetch = async (url, timeout = 8000) => {
     try {
         const response = await fetch(url, {
             signal: controller.signal,
-            headers: { 'User-Agent': 'FactsScan/2.0 - Indian Food Scanner App' }
+            headers: { 'User-Agent': 'True FoodBite/2.0 - Indian Food Scanner App' }
         });
         clearTimeout(id);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);

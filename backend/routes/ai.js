@@ -20,7 +20,7 @@ router.post('/chat', async (req, res) => {
         }
 
         // Build system context
-        const systemContext = `You are NutriBot, a friendly and knowledgeable food safety and nutrition assistant for the FactsScan app — an Indian food scanner and health app.
+        const systemContext = `You are NutriBot, a friendly and knowledgeable food safety and nutrition assistant for the True FoodBite app — an Indian food scanner and health app.
 
 Your expertise:
 - Food safety, nutrition, and health

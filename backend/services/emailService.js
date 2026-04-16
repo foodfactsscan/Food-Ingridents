@@ -48,8 +48,8 @@ export const sendOTPEmail = async (email, otp, purpose) => {
 
     try {
         const subject = purpose === 'signup'
-            ? 'FactsScan - Verify Your Email'
-            : 'FactsScan - Password Reset OTP';
+            ? 'True FoodBite - Verify Your Email'
+            : 'True FoodBite - Password Reset OTP';
 
         const html = `
             <!DOCTYPE html>
@@ -70,12 +70,12 @@ export const sendOTPEmail = async (email, otp, purpose) => {
             <body>
                 <div class="container">
                     <div class="header">
-                        <h1>🔐 FactsScan</h1>
+                        <h1>🔐 True FoodBite</h1>
                         <p style="margin: 10px 0 0 0; opacity: 0.9;">Smart Food Scanner</p>
                     </div>
                     <div class="content">
                         <h2 style="color: #1f2937; margin-bottom: 10px;">
-                            ${purpose === 'signup' ? 'Welcome to FactsScan!' : 'Password Reset Request'}
+                            ${purpose === 'signup' ? 'Welcome to True FoodBite!' : 'Password Reset Request'}
                         </h2>
                         <p style="color: #6b7280; font-size: 16px;">
                             ${purpose === 'signup'
@@ -98,7 +98,7 @@ export const sendOTPEmail = async (email, otp, purpose) => {
                         </div>
                     </div>
                     <div class="footer">
-                        <p><strong>FactsScan</strong> - Know Your Food, Protect Your Health</p>
+                        <p><strong>True FoodBite</strong> - Know Your Food, Protect Your Health</p>
                         <p style="margin: 5px 0;">This is an automated email. Please do not reply.</p>
                     </div>
                 </div>
@@ -107,7 +107,7 @@ export const sendOTPEmail = async (email, otp, purpose) => {
         `;
 
         const mailOptions = {
-            from: `"FactsScan" <${process.env.SMTP_USER}>`,
+            from: `"True FoodBite" <${process.env.SMTP_USER}>`,
             to: email,
             subject: subject,
             html: html
@@ -145,9 +145,9 @@ export const sendWelcomeEmail = async (email, firstName) => {
         `;
 
         await transporter.sendMail({
-            from: `"FactsScan" <${process.env.SMTP_USER}>`,
+            from: `"True FoodBite" <${process.env.SMTP_USER}>`,
             to: email,
-            subject: 'Welcome to FactsScan! 🎉',
+            subject: 'Welcome to True FoodBite! 🎉',
             html: html
         });
 

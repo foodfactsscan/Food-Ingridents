@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
-        name: 'FactsScan - Indian Food Ingredients AI',
-        short_name: 'FactsScan',
+        name: 'True FoodBite - Indian Food Ingredients AI',
+        short_name: 'True FoodBite',
         description: 'AI Powered Indian Food Label Analysis System',
         theme_color: '#0ea5e9',
         icons: [

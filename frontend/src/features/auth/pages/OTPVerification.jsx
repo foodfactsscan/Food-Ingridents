@@ -97,7 +97,7 @@ const OTPVerification = () => {
 
                 setTimeout(() => {
                     navigate('/scan', {
-                        state: { message: 'Welcome to FactsScan! Start scanning products.' }
+                        state: { message: 'Welcome to True FoodBite! Start scanning products.' }
                     });
                 }, 1500);
             } else if (purpose === 'forgot-password') {

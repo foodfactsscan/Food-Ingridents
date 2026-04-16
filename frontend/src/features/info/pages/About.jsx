@@ -18,7 +18,7 @@ const About = () => {
                     WebkitTextFillColor: 'transparent',
                     marginBottom: '1rem'
                 }}>
-                    FactsScan
+                    True FoodBite
                 </h1>
                 <p style={{
                     fontSize: '1.5rem',
@@ -238,7 +238,7 @@ const About = () => {
                         },
                         {
                             quote: "The journey to wellness begins with a single scan. Start today, transform forever.",
-                            author: "FactsScan Team"
+                            author: "True FoodBite Team"
                         }
                     ].map((item, idx) => (
                         <div
@@ -295,7 +295,7 @@ const About = () => {
                 }}>
                     <strong>Harshal Unde</strong> is a passionate developer dedicated to leveraging technology
                     for social good. With a vision to democratize nutritional information, Harshal created
-                    FactsScan to bridge the gap between complex food labels and everyday consumers.
+                    True FoodBite to bridge the gap between complex food labels and everyday consumers.
                 </p>
                 <p style={{
                     fontSize: '1rem',
@@ -317,7 +317,7 @@ const About = () => {
             >
                 <Shield size={48} color="#22c55e" style={{ margin: '0 auto 1.5rem', display: 'block' }} />
                 <h2 style={{ fontSize: '2rem', fontWeight: '700', marginBottom: '2rem', textAlign: 'center' }}>
-                    Why FactsScan?
+                    Why True FoodBite?
                 </h2>
                 <div style={{
                     display: 'grid',

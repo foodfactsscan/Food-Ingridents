@@ -91,7 +91,7 @@ const HowItWorks = () => {
                     color: 'var(--color-primary)',
                     fontWeight: '700'
                 }}>
-                    The FactsScan Rating System
+                    The True FoodBite Rating System
                 </motion.div>
 
                 <motion.h1 variants={fadeInUp} style={{
@@ -121,7 +121,7 @@ const HowItWorks = () => {
                         Unlike Simple Grades, We Look Deeper
                     </h2>
                     <p style={{ fontSize: '1.2rem', color: 'var(--color-text-muted)', lineHeight: '1.7' }}>
-                        While front-of-pack marketing claims only highlight what sounds good, the <strong>FactsScan Rating System</strong> evaluates a product's <strong>nutrition profile</strong>, <strong>ingredient health impact</strong>, <strong>processing level</strong>, and <strong>harmful additives</strong>. It cuts through misleading claims and shows you the real health impact of what you're eating.
+                        While front-of-pack marketing claims only highlight what sounds good, the <strong>True FoodBite Rating System</strong> evaluates a product's <strong>nutrition profile</strong>, <strong>ingredient health impact</strong>, <strong>processing level</strong>, and <strong>harmful additives</strong>. It cuts through misleading claims and shows you the real health impact of what you're eating.
                     </p>
                 </div>
             </section>
@@ -189,7 +189,7 @@ const HowItWorks = () => {
             {/* What We Don't Do */}
             <section style={{ padding: '4rem 0' }}>
                 <h2 className="section-title">What We Don't Do</h2>
-                <p className="section-subtitle">To ensure clarity, here's what the FactsScan Rating System does not do.</p>
+                <p className="section-subtitle">To ensure clarity, here's what the True FoodBite Rating System does not do.</p>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', marginTop: '3rem' }}>
                     {[

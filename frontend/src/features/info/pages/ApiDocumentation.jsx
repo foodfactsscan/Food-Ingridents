@@ -118,7 +118,7 @@ curl "https://world.openfoodfacts.org/category/chocolates.json"`
         {
             icon: Globe,
             title: 'Open Food Facts API',
-            description: 'FactsScan is powered by the Open Food Facts database, the largest open food products database in the world.',
+            description: 'True FoodBite is powered by the Open Food Facts database, the largest open food products database in the world.',
             link: 'https://world.openfoodfacts.org/data'
         },
         {
@@ -181,7 +181,7 @@ curl "https://world.openfoodfacts.org/category/chocolates.json"`
                     maxWidth: '700px',
                     margin: '0 auto'
                 }}>
-                    Learn how to integrate FactsScan's nutritional data into your own applications
+                    Learn how to integrate True FoodBite's nutritional data into your own applications
                 </p>
             </div>
 
@@ -207,7 +207,7 @@ curl "https://world.openfoodfacts.org/category/chocolates.json"`
                     fontSize: '1rem',
                     marginBottom: '1rem'
                 }}>
-                    FactsScan leverages the powerful <strong style={{ color: '#7c3aed' }}>Open Food Facts API</strong> to provide
+                    True FoodBite leverages the powerful <strong style={{ color: '#7c3aed' }}>Open Food Facts API</strong> to provide
                     comprehensive nutritional information. This documentation will help you integrate the same data source into your
                     own applications.
                 </p>

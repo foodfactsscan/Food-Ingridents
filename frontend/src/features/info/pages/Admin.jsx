@@ -69,7 +69,7 @@ function AdminLogin({ onLogin }) {
                         <Shield size={32} color="#fff" />
                     </div>
                     <h2 style={{ margin: 0, fontSize: '1.5rem' }}>Admin Panel</h2>
-                    <p style={{ color: '#94a3b8', marginTop: '0.5rem', fontSize: '0.9rem' }}>FactsScan Administration</p>
+                    <p style={{ color: '#94a3b8', marginTop: '0.5rem', fontSize: '0.9rem' }}>True FoodBite Administration</p>
                 </div>
                 <form onSubmit={handleSubmit}>
                     <label style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem', display: 'block' }}>Email</label>
@@ -82,7 +82,7 @@ function AdminLogin({ onLogin }) {
                     </button>
                 </form>
                 <p style={{ color: '#64748b', fontSize: '0.75rem', textAlign: 'center', marginTop: '1.5rem' }}>
-                    Default: admin@factsscan.com / admin123
+                    Default: admin@truefoodbite.com / admin123
                 </p>
             </motion.div>
         </div>
@@ -621,7 +621,7 @@ export default function Admin() {
                         <Shield size={22} color="#fff" />
                     </div>
                     <div>
-                        <h1 style={{ margin: 0, fontSize: '1.3rem' }}>FactsScan Admin</h1>
+                        <h1 style={{ margin: 0, fontSize: '1.3rem' }}>True FoodBite Admin</h1>
                         <p style={{ margin: 0, color: '#64748b', fontSize: '0.78rem' }}>Administration Panel</p>
                     </div>
                 </div>
