@@ -1,651 +1,297 @@
-import { Code, Book, Zap, Database, Globe, Key, Copy, Check } from 'lucide-react';
-import { Link } from 'react-router-dom';
+/**
+ * API Documentation — True FoodBite
+ * Developer-friendly API reference.
+ */
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Code, Zap, Globe, Key, Terminal, Copy, CheckCircle, BookOpen, AlertTriangle } from 'lucide-react';
 
-const ApiDocumentation = () => {
-    const [copiedCode, setCopiedCode] = useState(null);
+const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.45 } } };
+const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
 
-    const copyToClipboard = (code, id) => {
-        navigator.clipboard.writeText(code);
-        setCopiedCode(id);
-        setTimeout(() => setCopiedCode(null), 2000);
-    };
+const BASE = 'https://truefoodbite.vercel.app/api';
 
-    const endpoints = [
-        {
-            method: 'GET',
-            endpoint: '/api/product/:barcode',
-            description: 'Retrieve product information by barcode',
-            example: `// Example Request
-fetch('https://world.openfoodfacts.org/api/v2/product/3017620422003.json')
-  .then(response => response.json())
-  .then(data => console.log(data));`,
-            response: `{
-  "status": 1,
+const ENDPOINTS = [
+    {
+        method: 'GET',
+        methodColor: '#22c55e',
+        path: '/product/:barcode',
+        title: 'Get Product by Barcode',
+        desc: 'Retrieve complete product data including nutrition facts, ingredient list, Nutri-Grade, and NOVA classification for a product by its EAN-13 barcode.',
+        params: [{ name: 'barcode', type: 'string', req: true, desc: 'EAN-13 barcode (e.g., 8901030704849 for Maggi)' }],
+        response: `{
+  "status": "success",
   "product": {
-    "product_name": "Nutella",
-    "brands": "Ferrero",
-    "nutriscore_grade": "e",
-    "nutriments": {
-      "energy-kcal_100g": 539,
-      "fat_100g": 30.9,
-      "carbohydrates_100g": 57.5,
-      "proteins_100g": 6.3
-    }
+    "barcode": "8901030704849",
+    "name": "Maggi 2-Minute Noodles (Masala)",
+    "brand": "Nestlé India",
+    "image_url": "https://...",
+    "nutri_grade": "E",
+    "nova_group": 4,
+    "nutrition_per_100g": {
+      "energy_kcal": 390,
+      "carbohydrates": 58.5,
+      "sugar": 2.8,
+      "protein": 10.1,
+      "fat": 13.9,
+      "saturated_fat": 5.8,
+      "fibre": 2.2,
+      "sodium": 1270
+    },
+    "ingredients": [ ... ],
+    "allergens": ["gluten", "milk"],
+    "additives": ["E508", "E627", "E631", "E330"],
+    "health_score": 1.8,
+    "verdict": "Avoid"
   }
-}`
-        },
-        {
-            method: 'GET',
-            endpoint: '/api/search',
-            description: 'Search products by name or keywords',
-            example: `// Example Request
-const query = 'chocolate';
-fetch(\`https://world.openfoodfacts.org/cgi/search.pl?search_terms=\${query}&json=true\`)
-  .then(response => response.json())
-  .then(data => console.log(data));`,
-            response: `{
-  "count": 1000,
-  "page": 1,
+}`,
+        example: `curl -X GET "${BASE}/product/8901030704849"`,
+    },
+    {
+        method: 'GET',
+        methodColor: '#22c55e',
+        path: '/search',
+        title: 'Search Products',
+        desc: 'Search for products by name. Returns up to 12 results sorted by relevance and popularity. India-first results are prioritised.',
+        params: [
+            { name: 'q', type: 'string', req: true, desc: 'Search query (e.g., "maggi", "amul butter")' },
+            { name: 'page', type: 'integer', req: false, desc: 'Page number (default: 1)' },
+            { name: 'limit', type: 'integer', req: false, desc: 'Results per page (default: 12, max: 24)' },
+        ],
+        response: `{
+  "status": "success",
+  "count": 12,
   "products": [
     {
-      "product_name": "Dark Chocolate",
-      "brands": "Lindt",
-      "nutriscore_grade": "d"
+      "barcode": "...",
+      "name": "...",
+      "brand": "...",
+      "image_url": "...",
+      "nutri_grade": "C",
+      "nova_group": 3
     }
   ]
-}`
-        }
-    ];
-
-    const integrationGuide = [
-        {
-            title: 'JavaScript/React',
-            icon: Code,
-            code: `import axios from 'axios';
-
-const scanProduct = async (barcode) => {
-  try {
-    const response = await axios.get(
-      \`https://world.openfoodfacts.org/api/v2/product/\${barcode}.json\`
-    );
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching product:', error);
-    throw error;
+}`,
+        example: `curl -X GET "${BASE}/search?q=maggi&page=1&limit=12"`,
+    },
+    {
+        method: 'POST',
+        methodColor: '#6366f1',
+        path: '/auth/register',
+        title: 'Register User',
+        desc: 'Create a new user account. Sends an OTP to the provided email for verification.',
+        params: [
+            { name: 'name', type: 'string', req: true, desc: 'Full name of the user' },
+            { name: 'email', type: 'string', req: true, desc: 'Valid email address' },
+            { name: 'password', type: 'string', req: true, desc: 'Minimum 8 characters' },
+        ],
+        response: `{
+  "status": "success",
+  "message": "OTP sent to your email",
+  "userId": "64abc123..."
+}`,
+        example: `curl -X POST "${BASE}/auth/register" \\
+  -H "Content-Type: application/json" \\
+  -d '{"name":"Test User","email":"test@example.com","password":"secure123"}'`,
+    },
+    {
+        method: 'POST',
+        methodColor: '#6366f1',
+        path: '/auth/login',
+        title: 'Login',
+        desc: 'Authenticate a user. Returns a JWT token valid for 7 days.',
+        params: [
+            { name: 'email', type: 'string', req: true, desc: 'Registered email address' },
+            { name: 'password', type: 'string', req: true, desc: 'Account password' },
+        ],
+        response: `{
+  "status": "success",
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "user": {
+    "id": "64abc123...",
+    "name": "Test User",
+    "email": "test@example.com"
   }
-};
+}`,
+        example: `curl -X POST "${BASE}/auth/login" \\
+  -H "Content-Type: application/json" \\
+  -d '{"email":"test@example.com","password":"secure123"}'`,
+    },
+    {
+        method: 'GET',
+        methodColor: '#22c55e',
+        path: '/user/history',
+        title: 'Get Scan History (Auth Required)',
+        desc: 'Returns the authenticated user\'s product scan history sorted by most recent first.',
+        params: [
+            { name: 'Authorization', type: 'header', req: true, desc: 'Bearer <JWT token>' },
+        ],
+        response: `{
+  "status": "success",
+  "history": [
+    {
+      "barcode": "...",
+      "name": "...",
+      "scanned_at": "2026-04-17T10:30:00Z",
+      "nutri_grade": "D"
+    }
+  ]
+}`,
+        example: `curl -X GET "${BASE}/user/history" \\
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIs..."`,
+    },
+];
 
-// Usage
-scanProduct('3017620422003')
-  .then(data => console.log(data.product));`
-        },
-        {
-            title: 'Python',
-            icon: Code,
-            code: `import requests
+const ERROR_CODES = [
+    { code: '200', label: 'OK', desc: 'Request successful', color: '#22c55e' },
+    { code: '400', label: 'Bad Request', desc: 'Invalid parameters or missing required fields', color: '#f59e0b' },
+    { code: '401', label: 'Unauthorized', desc: 'Missing or invalid JWT token for protected routes', color: '#f59e0b' },
+    { code: '404', label: 'Not Found', desc: 'Product barcode not found in database', color: '#ef4444' },
+    { code: '429', label: 'Rate Limited', desc: 'Too many requests. Limit: 60 req/min per IP', color: '#ef4444' },
+    { code: '500', label: 'Server Error', desc: 'Internal server error — please report via GitHub', color: '#ef4444' },
+];
 
-def scan_product(barcode):
-    url = f"https://world.openfoodfacts.org/api/v2/product/{barcode}.json"
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching product: {e}")
-        return None
-
-# Usage
-product_data = scan_product('3017620422003')
-if product_data and product_data.get('status') == 1:
-    print(product_data['product'])`
-        },
-        {
-            title: 'cURL',
-            icon: Code,
-            code: `# Get product by barcode
-curl "https://world.openfoodfacts.org/api/v2/product/3017620422003.json"
-
-# Search products
-curl "https://world.openfoodfacts.org/cgi/search.pl?search_terms=chocolate&json=true"
-
-# Get products by category
-curl "https://world.openfoodfacts.org/category/chocolates.json"`
-        }
-    ];
-
-    const features = [
-        {
-            icon: Globe,
-            title: 'Open Food Facts API',
-            description: 'True FoodBite is powered by the Open Food Facts database, the largest open food products database in the world.',
-            link: 'https://world.openfoodfacts.org/data'
-        },
-        {
-            icon: Database,
-            title: 'Comprehensive Data',
-            description: 'Access nutritional information, ingredients, allergens, and health scores for millions of products.',
-            link: 'https://wiki.openfoodfacts.org/API'
-        },
-        {
-            icon: Key,
-            title: 'No API Key Required',
-            description: 'The Open Food Facts API is completely free and open. No registration or API keys needed.',
-            link: 'https://world.openfoodfacts.org/data'
-        },
-        {
-            icon: Zap,
-            title: 'Real-Time Updates',
-            description: 'Product data is constantly updated by a global community of contributors.',
-            link: 'https://world.openfoodfacts.org/contribute'
-        }
-    ];
-
+function CodeBlock({ code }) {
+    const [copied, setCopied] = useState(false);
     return (
-        <div className="page-container">
-            {/* Header */}
-            <div style={{
-                background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%)',
-                borderRadius: 'var(--radius-3xl)',
-                padding: '3rem 2rem',
-                marginBottom: '3rem',
-                textAlign: 'center',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
+        <div style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', marginTop: '0.75rem' }}>
+            <pre style={{
+                background: 'rgba(0,0,0,0.5)', padding: '1rem 1.25rem',
+                fontSize: '0.78rem', color: '#a5f3fc', fontFamily: 'monospace', lineHeight: 1.65,
+                overflowX: 'auto', scrollbarWidth: 'none', border: '1px solid rgba(255,255,255,0.07)',
+                borderRadius: '12px', whiteSpace: 'pre-wrap', wordBreak: 'break-all'
             }}>
-                <div style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '80px',
-                    height: '80px',
-                    borderRadius: 'var(--radius-full)',
-                    background: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)',
-                    marginBottom: '1.5rem',
-                    boxShadow: '0 10px 30px rgba(124, 58, 237, 0.3)'
-                }}>
-                    <Book size={40} color="#fff" />
-                </div>
-                <h1 style={{
-                    fontSize: '3rem',
-                    fontWeight: '900',
-                    marginBottom: '1rem',
-                    background: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent'
-                }}>
-                    API Documentation
-                </h1>
-                <p style={{
-                    fontSize: '1.1rem',
-                    color: 'var(--color-text-muted)',
-                    maxWidth: '700px',
-                    margin: '0 auto'
-                }}>
-                    Learn how to integrate True FoodBite's nutritional data into your own applications
-                </p>
-            </div>
-
-            {/* Introduction */}
-            <div style={{
-                background: 'var(--gradient-card)',
-                borderRadius: 'var(--radius-2xl)',
-                padding: '2rem',
-                marginBottom: '3rem',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
-            }}>
-                <h2 style={{
-                    fontSize: '1.5rem',
-                    fontWeight: '700',
-                    marginBottom: '1rem',
-                    color: '#fff'
-                }}>
-                    Getting Started
-                </h2>
-                <p style={{
-                    color: 'var(--color-text-muted)',
-                    lineHeight: '1.8',
-                    fontSize: '1rem',
-                    marginBottom: '1rem'
-                }}>
-                    True FoodBite leverages the powerful <strong style={{ color: '#7c3aed' }}>Open Food Facts API</strong> to provide
-                    comprehensive nutritional information. This documentation will help you integrate the same data source into your
-                    own applications.
-                </p>
-                <p style={{
-                    color: 'var(--color-text-muted)',
-                    lineHeight: '1.8',
-                    fontSize: '1rem'
-                }}>
-                    The API is free, open-source, and requires no authentication. You can start making requests immediately!
-                </p>
-            </div>
-
-            {/* Features Grid */}
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                gap: '1.5rem',
-                marginBottom: '3rem'
-            }}>
-                {features.map((feature, index) => (
-                    <a
-                        key={index}
-                        href={feature.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                            background: 'var(--gradient-card)',
-                            borderRadius: 'var(--radius-2xl)',
-                            padding: '2rem',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                            textDecoration: 'none',
-                            transition: 'transform 0.3s, box-shadow 0.3s'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = 'translateY(-5px)';
-                            e.currentTarget.style.boxShadow = '0 15px 40px rgba(124, 58, 237, 0.3)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.boxShadow = 'none';
-                        }}
-                    >
-                        <div style={{
-                            width: '50px',
-                            height: '50px',
-                            borderRadius: 'var(--radius-lg)',
-                            background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            marginBottom: '1rem'
-                        }}>
-                            <feature.icon size={24} color="#7c3aed" />
-                        </div>
-                        <h3 style={{
-                            fontSize: '1.2rem',
-                            fontWeight: '700',
-                            color: '#fff',
-                            marginBottom: '0.5rem'
-                        }}>
-                            {feature.title}
-                        </h3>
-                        <p style={{
-                            color: 'var(--color-text-muted)',
-                            lineHeight: '1.6',
-                            fontSize: '0.95rem'
-                        }}>
-                            {feature.description}
-                        </p>
-                    </a>
-                ))}
-            </div>
-
-            {/* API Endpoints */}
-            <h2 style={{
-                fontSize: '2rem',
-                fontWeight: '800',
-                marginBottom: '2rem',
-                color: '#fff'
-            }}>
-                API Endpoints
-            </h2>
-
-            {endpoints.map((endpoint, index) => (
-                <div
-                    key={index}
-                    style={{
-                        background: 'var(--gradient-card)',
-                        borderRadius: 'var(--radius-2xl)',
-                        padding: '2rem',
-                        marginBottom: '2rem',
-                        border: '1px solid rgba(255, 255, 255, 0.1)'
-                    }}
-                >
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '1rem',
-                        marginBottom: '1rem'
-                    }}>
-                        <span style={{
-                            padding: '0.5rem 1rem',
-                            background: endpoint.method === 'GET' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(59, 130, 246, 0.2)',
-                            color: endpoint.method === 'GET' ? '#22c55e' : '#3b82f6',
-                            borderRadius: 'var(--radius-lg)',
-                            fontWeight: '700',
-                            fontSize: '0.9rem'
-                        }}>
-                            {endpoint.method}
-                        </span>
-                        <code style={{
-                            color: '#7c3aed',
-                            fontSize: '1.1rem',
-                            fontWeight: '600'
-                        }}>
-                            {endpoint.endpoint}
-                        </code>
-                    </div>
-                    <p style={{
-                        color: 'var(--color-text-muted)',
-                        marginBottom: '1.5rem',
-                        lineHeight: '1.6'
-                    }}>
-                        {endpoint.description}
-                    </p>
-
-                    {/* Request Example */}
-                    <div style={{ marginBottom: '1.5rem' }}>
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            marginBottom: '0.5rem'
-                        }}>
-                            <h4 style={{
-                                fontSize: '1rem',
-                                fontWeight: '600',
-                                color: '#fff'
-                            }}>
-                                Request Example
-                            </h4>
-                            <button
-                                onClick={() => copyToClipboard(endpoint.example, `example-${index}`)}
-                                style={{
-                                    background: 'rgba(124, 58, 237, 0.2)',
-                                    border: 'none',
-                                    borderRadius: 'var(--radius-lg)',
-                                    padding: '0.5rem 1rem',
-                                    color: '#7c3aed',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '0.5rem',
-                                    fontSize: '0.9rem',
-                                    transition: 'background 0.3s'
-                                }}
-                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(124, 58, 237, 0.3)'}
-                                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(124, 58, 237, 0.2)'}
-                            >
-                                {copiedCode === `example-${index}` ? (
-                                    <><Check size={16} /> Copied!</>
-                                ) : (
-                                    <><Copy size={16} /> Copy</>
-                                )}
-                            </button>
-                        </div>
-                        <pre style={{
-                            background: 'rgba(0, 0, 0, 0.5)',
-                            padding: '1.5rem',
-                            borderRadius: 'var(--radius-lg)',
-                            overflow: 'auto',
-                            fontSize: '0.9rem',
-                            lineHeight: '1.6'
-                        }}>
-                            <code style={{ color: '#a5b4fc' }}>
-                                {endpoint.example}
-                            </code>
-                        </pre>
-                    </div>
-
-                    {/* Response Example */}
-                    <div>
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            marginBottom: '0.5rem'
-                        }}>
-                            <h4 style={{
-                                fontSize: '1rem',
-                                fontWeight: '600',
-                                color: '#fff'
-                            }}>
-                                Response Example
-                            </h4>
-                            <button
-                                onClick={() => copyToClipboard(endpoint.response, `response-${index}`)}
-                                style={{
-                                    background: 'rgba(124, 58, 237, 0.2)',
-                                    border: 'none',
-                                    borderRadius: 'var(--radius-lg)',
-                                    padding: '0.5rem 1rem',
-                                    color: '#7c3aed',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '0.5rem',
-                                    fontSize: '0.9rem',
-                                    transition: 'background 0.3s'
-                                }}
-                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(124, 58, 237, 0.3)'}
-                                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(124, 58, 237, 0.2)'}
-                            >
-                                {copiedCode === `response-${index}` ? (
-                                    <><Check size={16} /> Copied!</>
-                                ) : (
-                                    <><Copy size={16} /> Copy</>
-                                )}
-                            </button>
-                        </div>
-                        <pre style={{
-                            background: 'rgba(0, 0, 0, 0.5)',
-                            padding: '1.5rem',
-                            borderRadius: 'var(--radius-lg)',
-                            overflow: 'auto',
-                            fontSize: '0.9rem',
-                            lineHeight: '1.6'
-                        }}>
-                            <code style={{ color: '#a5b4fc' }}>
-                                {endpoint.response}
-                            </code>
-                        </pre>
-                    </div>
-                </div>
-            ))}
-
-            {/* Integration Examples */}
-            <h2 style={{
-                fontSize: '2rem',
-                fontWeight: '800',
-                marginBottom: '2rem',
-                color: '#fff',
-                marginTop: '3rem'
-            }}>
-                Integration Examples
-            </h2>
-
-            {integrationGuide.map((guide, index) => (
-                <div
-                    key={index}
-                    style={{
-                        background: 'var(--gradient-card)',
-                        borderRadius: 'var(--radius-2xl)',
-                        padding: '2rem',
-                        marginBottom: '2rem',
-                        border: '1px solid rgba(255, 255, 255, 0.1)'
-                    }}
-                >
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        marginBottom: '1rem'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '1rem'
-                        }}>
-                            <div style={{
-                                width: '40px',
-                                height: '40px',
-                                borderRadius: 'var(--radius-lg)',
-                                background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                            }}>
-                                <guide.icon size={20} color="#7c3aed" />
-                            </div>
-                            <h3 style={{
-                                fontSize: '1.3rem',
-                                fontWeight: '700',
-                                color: '#fff'
-                            }}>
-                                {guide.title}
-                            </h3>
-                        </div>
-                        <button
-                            onClick={() => copyToClipboard(guide.code, `integration-${index}`)}
-                            style={{
-                                background: 'rgba(124, 58, 237, 0.2)',
-                                border: 'none',
-                                borderRadius: 'var(--radius-lg)',
-                                padding: '0.5rem 1rem',
-                                color: '#7c3aed',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.5rem',
-                                fontSize: '0.9rem',
-                                transition: 'background 0.3s'
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(124, 58, 237, 0.3)'}
-                            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(124, 58, 237, 0.2)'}
-                        >
-                            {copiedCode === `integration-${index}` ? (
-                                <><Check size={16} /> Copied!</>
-                            ) : (
-                                <><Copy size={16} /> Copy</>
-                            )}
-                        </button>
-                    </div>
-                    <pre style={{
-                        background: 'rgba(0, 0, 0, 0.5)',
-                        padding: '1.5rem',
-                        borderRadius: 'var(--radius-lg)',
-                        overflow: 'auto',
-                        fontSize: '0.9rem',
-                        lineHeight: '1.6'
-                    }}>
-                        <code style={{ color: '#a5b4fc' }}>
-                            {guide.code}
-                        </code>
-                    </pre>
-                </div>
-            ))}
-
-            {/* Additional Resources */}
-            <div style={{
-                background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%)',
-                borderRadius: 'var(--radius-2xl)',
-                padding: '2rem',
-                marginBottom: '3rem',
-                border: '1px solid rgba(124, 58, 237, 0.3)',
-                textAlign: 'center'
-            }}>
-                <h3 style={{
-                    fontSize: '1.5rem',
-                    fontWeight: '700',
-                    marginBottom: '1rem',
-                    color: '#fff'
-                }}>
-                    Additional Resources
-                </h3>
-                <p style={{
-                    color: 'var(--color-text-muted)',
-                    marginBottom: '1.5rem',
-                    lineHeight: '1.8'
-                }}>
-                    For more detailed information about the Open Food Facts API, visit the official documentation
-                </p>
-                <div style={{
-                    display: 'flex',
-                    gap: '1rem',
-                    justifyContent: 'center',
-                    flexWrap: 'wrap'
-                }}>
-                    <a
-                        href="https://wiki.openfoodfacts.org/API"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                            padding: '1rem 2rem',
-                            background: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)',
-                            color: '#fff',
-                            textDecoration: 'none',
-                            borderRadius: 'var(--radius-full)',
-                            fontWeight: '600',
-                            transition: 'transform 0.3s, box-shadow 0.3s'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = 'translateY(-2px)';
-                            e.currentTarget.style.boxShadow = '0 10px 30px rgba(124, 58, 237, 0.4)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.boxShadow = 'none';
-                        }}
-                    >
-                        Official API Docs
-                    </a>
-                    <a
-                        href="https://world.openfoodfacts.org"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                            padding: '1rem 2rem',
-                            background: 'rgba(255, 255, 255, 0.1)',
-                            color: '#fff',
-                            textDecoration: 'none',
-                            borderRadius: 'var(--radius-full)',
-                            fontWeight: '600',
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
-                            transition: 'transform 0.3s, box-shadow 0.3s'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = 'translateY(-2px)';
-                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                        }}
-                    >
-                        Open Food Facts
-                    </a>
-                </div>
-            </div>
-
-            {/* Back to Home */}
-            <div style={{ textAlign: 'center' }}>
-                <Link
-                    to="/"
-                    style={{
-                        display: 'inline-block',
-                        padding: '1rem 2rem',
-                        background: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)',
-                        color: '#fff',
-                        textDecoration: 'none',
-                        borderRadius: 'var(--radius-full)',
-                        fontWeight: '600',
-                        transition: 'transform 0.3s, box-shadow 0.3s'
-                    }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-2px)';
-                        e.currentTarget.style.boxShadow = '0 10px 30px rgba(124, 58, 237, 0.4)';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = 'none';
-                    }}
-                >
-                    Back to Home
-                </Link>
-            </div>
+                {code}
+            </pre>
+            <button
+                onClick={() => { navigator.clipboard.writeText(code); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+                style={{
+                    position: 'absolute', top: '0.6rem', right: '0.6rem',
+                    background: copied ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.07)',
+                    border: `1px solid ${copied ? 'rgba(34,197,94,0.4)' : 'rgba(255,255,255,0.12)'}`,
+                    borderRadius: '8px', padding: '0.3rem 0.6rem',
+                    display: 'flex', alignItems: 'center', gap: '0.3rem',
+                    color: copied ? '#22c55e' : '#94a3b8', fontSize: '0.7rem', cursor: 'pointer'
+                }}
+            >
+                {copied ? <CheckCircle size={12} /> : <Copy size={12} />}
+                {copied ? 'Copied' : 'Copy'}
+            </button>
         </div>
     );
-};
+}
 
-export default ApiDocumentation;
+export default function ApiDocumentation() {
+    const [active, setActive] = useState(0);
+
+    return (
+        <div style={{ paddingBottom: '6rem' }}>
+            {/* HERO */}
+            <section style={{ background: 'linear-gradient(180deg, rgba(99,102,241,0.08) 0%, transparent 100%)', borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '5rem 0 3.5rem', textAlign: 'center' }}>
+                <div className="container" style={{ maxWidth: '780px' }}>
+                    <motion.div initial="hidden" animate="visible" variants={stagger}>
+                        <motion.div variants={fadeUp} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 1.2rem', borderRadius: '999px', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', color: '#818cf8', fontWeight: '700', fontSize: '0.82rem', marginBottom: '1.5rem' }}>
+                            <Code size={14} /> REST API · JSON · Free Tier Available
+                        </motion.div>
+                        <motion.h1 variants={fadeUp} style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: '900', lineHeight: 1.1, marginBottom: '1rem' }}>API Documentation</motion.h1>
+                        <motion.p variants={fadeUp} style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: 1.65 }}>
+                            Base URL: <code style={{ background: 'rgba(255,255,255,0.07)', padding: '0.2rem 0.6rem', borderRadius: '6px', fontFamily: 'monospace', fontSize: '0.85rem', color: '#a5f3fc' }}>{BASE}</code>
+                        </motion.p>
+                        <motion.div variants={fadeUp} style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', marginTop: '1.25rem', flexWrap: 'wrap' }}>
+                            {[['Rate Limit', '60 req/min (free)'], ['Auth', 'JWT Bearer Token'], ['Format', 'JSON only']].map(([k, v]) => (
+                                <div key={k} style={{ padding: '0.5rem 1.1rem', borderRadius: '10px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: '0.8rem' }}>
+                                    <span style={{ color: '#475569' }}>{k}: </span>
+                                    <span style={{ color: '#94a3b8', fontWeight: '700' }}>{v}</span>
+                                </div>
+                            ))}
+                        </motion.div>
+                    </motion.div>
+                </div>
+            </section>
+
+            {/* MAIN CONTENT */}
+            <section style={{ padding: '4rem 0' }}>
+                <div className="container" style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '3rem', maxWidth: '1100px', alignItems: 'start' }}>
+                    {/* Sidebar nav */}
+                    <div style={{ position: 'sticky', top: '100px' }}>
+                        <div style={{ padding: '1.25rem', borderRadius: '18px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                            <div style={{ fontSize: '0.68rem', color: '#475569', fontWeight: '800', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Endpoints</div>
+                            {ENDPOINTS.map((e, i) => (
+                                <button key={e.path} onClick={() => setActive(i)} style={{
+                                    width: '100%', display: 'flex', alignItems: 'center', gap: '0.6rem',
+                                    padding: '0.6rem 0.75rem', borderRadius: '10px', border: 'none',
+                                    background: active === i ? 'rgba(99,102,241,0.12)' : 'transparent',
+                                    cursor: 'pointer', textAlign: 'left', marginBottom: '0.25rem', transition: 'all 0.15s'
+                                }}>
+                                    <span style={{ fontSize: '0.65rem', fontWeight: '800', padding: '0.15rem 0.5rem', borderRadius: '6px', background: `${e.methodColor}20`, color: e.methodColor, flexShrink: 0 }}>
+                                        {e.method}
+                                    </span>
+                                    <span style={{ fontSize: '0.78rem', color: active === i ? '#f1f5f9' : '#94a3b8', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                        {e.path}
+                                    </span>
+                                </button>
+                            ))}
+                            <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '0.75rem 0' }} />
+                            <div style={{ fontSize: '0.68rem', color: '#475569', fontWeight: '800', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Reference</div>
+                            <button onClick={() => setActive(-1)} style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: '10px', border: 'none', background: active === -1 ? 'rgba(99,102,241,0.12)' : 'transparent', cursor: 'pointer', textAlign: 'left', fontSize: '0.8rem', color: active === -1 ? '#f1f5f9' : '#94a3b8' }}>
+                                Error Codes
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Content */}
+                    <div>
+                        {active === -1 ? (
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                                <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '1.5rem', color: '#f1f5f9' }}>Error Codes</h2>
+                                {ERROR_CODES.map(e => (
+                                    <div key={e.code} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.85rem 1.25rem', borderRadius: '12px', background: `${e.color}06`, border: `1px solid ${e.color}18`, marginBottom: '0.6rem' }}>
+                                        <span style={{ width: '44px', fontWeight: '900', fontSize: '0.95rem', color: e.color, fontFamily: 'monospace', flexShrink: 0 }}>{e.code}</span>
+                                        <div>
+                                            <span style={{ fontWeight: '700', color: '#f1f5f9', fontSize: '0.85rem' }}>{e.label} </span>
+                                            <span style={{ fontSize: '0.82rem', color: '#64748b' }}>— {e.desc}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </motion.div>
+                        ) : (
+                            <motion.div key={active} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                                {(() => {
+                                    const e = ENDPOINTS[active];
+                                    return (
+                                        <div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+                                                <span style={{ padding: '0.3rem 0.9rem', borderRadius: '8px', background: `${e.methodColor}18`, color: e.methodColor, fontWeight: '800', fontSize: '0.85rem', fontFamily: 'monospace' }}>{e.method}</span>
+                                                <code style={{ fontSize: '1.05rem', color: '#f1f5f9', fontFamily: 'monospace' }}>{e.path}</code>
+                                            </div>
+                                            <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '0.75rem', color: '#f1f5f9' }}>{e.title}</h2>
+                                            <p style={{ color: '#94a3b8', fontSize: '0.9rem', lineHeight: 1.7, marginBottom: '2rem' }}>{e.desc}</p>
+
+                                            <h3 style={{ fontSize: '0.8rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Parameters</h3>
+                                            <div style={{ border: '1px solid rgba(255,255,255,0.07)', borderRadius: '14px', overflow: 'hidden', marginBottom: '2rem' }}>
+                                                {e.params.map((p, i) => (
+                                                    <div key={p.name} style={{ display: 'flex', gap: '1rem', padding: '0.85rem 1.25rem', borderBottom: i < e.params.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                                                        <code style={{ fontSize: '0.82rem', color: '#a5f3fc', fontFamily: 'monospace', minWidth: '140px' }}>{p.name}</code>
+                                                        <span style={{ fontSize: '0.72rem', padding: '0.15rem 0.5rem', borderRadius: '6px', background: 'rgba(255,255,255,0.06)', color: '#94a3b8', fontFamily: 'monospace', flexShrink: 0 }}>{p.type}</span>
+                                                        {p.req && <span style={{ fontSize: '0.68rem', padding: '0.15rem 0.5rem', borderRadius: '6px', background: 'rgba(239,68,68,0.12)', color: '#f87171', flexShrink: 0 }}>required</span>}
+                                                        <p style={{ fontSize: '0.82rem', color: '#64748b', flex: 1, minWidth: '140px' }}>{p.desc}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            <h3 style={{ fontSize: '0.8rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem' }}>Example Request</h3>
+                                            <CodeBlock code={e.example} />
+
+                                            <h3 style={{ fontSize: '0.8rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem', marginTop: '1.75rem' }}>Example Response</h3>
+                                            <CodeBlock code={e.response} />
+                                        </div>
+                                    );
+                                })()}
+                            </motion.div>
+                        )}
+                    </div>
+                </div>
+            </section>
+        </div>
+    );
+}

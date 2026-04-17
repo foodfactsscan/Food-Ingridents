@@ -1,373 +1,190 @@
-import { FileText, CheckCircle, XCircle, AlertTriangle, Scale, Users } from 'lucide-react';
-import { Link } from 'react-router-dom';
+/**
+ * Terms of Service — True FoodBite
+ * Clear, fair, plain-language terms. No dark patterns.
+ * Last updated: April 2026
+ */
+import { motion } from 'framer-motion';
+import { FileText, CheckCircle, XCircle, AlertTriangle, Scale, Mail, Shield } from 'lucide-react';
 
-const TermsOfService = () => {
-    const lastUpdated = "February 3, 2026";
+const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.45 } } };
+const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
 
-    const sections = [
-        {
-            icon: CheckCircle,
-            title: "Acceptance of Terms",
-            content: [
-                "By accessing and using True FoodBite, you accept and agree to be bound by the terms and conditions of this agreement. " +
-                "If you do not agree to these terms, please do not use our service.",
-                "These Terms of Service constitute a legally binding agreement between you and True FoodBite. We reserve the right to " +
-                "update these terms at any time, and your continued use of the service constitutes acceptance of any changes."
-            ]
-        },
-        {
-            icon: Users,
-            title: "User Responsibilities",
-            content: [
-                "As a user of True FoodBite, you agree to:",
-                "• Use the service for lawful purposes only",
-                "• Provide accurate information when scanning products",
-                "• Not attempt to reverse engineer or compromise our systems",
-                "• Not use automated tools to scrape or download our content",
-                "• Respect intellectual property rights of True FoodBite and third parties",
-                "• Not misuse or abuse our service in any way",
-                "Violation of these responsibilities may result in suspension or termination of your access to True FoodBite."
-            ]
-        },
-        {
-            icon: Scale,
-            title: "Service Description",
-            content: [
-                "True FoodBite provides nutritional information and analysis for food products by:",
-                "• Scanning product barcodes to retrieve nutritional data",
-                "• Searching our database of food products from Open Food Facts",
-                "• Providing health grades and nutritional insights",
-                "• Offering comparison tools for informed decision-making",
-                "Our service is provided 'as is' for informational and educational purposes. While we strive for accuracy, " +
-                "we cannot guarantee the completeness or correctness of all nutritional information."
-            ]
-        },
-        {
-            icon: AlertTriangle,
-            title: "Disclaimers and Limitations",
-            content: [
-                "Important disclaimers:",
-                "• Nutritional information is sourced from third-party databases (primarily Open Food Facts)",
-                "• We do not guarantee the accuracy, completeness, or timeliness of product information",
-                "• True FoodBite is not a substitute for professional medical or dietary advice",
-                "• Always verify nutritional information with the actual product packaging",
-                "• Consult healthcare professionals for personalized dietary recommendations",
-                "• We are not liable for decisions made based on information from our service",
-                "Use of True FoodBite does not create a healthcare provider-patient relationship."
-            ]
-        },
-        {
-            icon: XCircle,
-            title: "Limitation of Liability",
-            content: [
-                "To the fullest extent permitted by law:",
-                "• True FoodBite and its creators shall not be liable for any indirect, incidental, special, or consequential damages",
-                "• We are not responsible for any health issues arising from dietary decisions",
-                "• Our total liability shall not exceed the amount you paid to use our service (currently free)",
-                "• We are not liable for service interruptions, data loss, or technical issues",
-                "• We do not warrant that the service will be uninterrupted, secure, or error-free",
-                "This limitation applies even if we have been advised of the possibility of such damages."
-            ]
-        },
-        {
-            icon: FileText,
-            title: "Intellectual Property",
-            content: [
-                "All content, features, and functionality of True FoodBite are owned by us and protected by copyright, trademark, " +
-                "and other intellectual property laws.",
-                "You are granted a limited, non-exclusive, non-transferable license to use True FoodBite for personal, non-commercial purposes.",
-                "You may not:",
-                "• Reproduce, distribute, or create derivative works from our content",
-                "• Use our trademarks or branding without permission",
-                "• Remove or modify any copyright notices",
-                "Product data from Open Food Facts is licensed under the Open Database License (ODbL)."
-            ]
-        }
-    ];
+const TERMS = [
+    {
+        icon: CheckCircle,
+        color: '#22c55e',
+        title: '1. Acceptance of Terms',
+        paras: [
+            'By accessing or using True FoodBite ("the Service", "the Platform"), you agree to these Terms of Service. If you do not agree, please do not use the Service.',
+            'These Terms apply to all users including registered members and anonymous visitors.',
+            'We may update these Terms periodically. Continued use of the Service after changes constitutes acceptance. We will notify registered users of material changes via email.',
+        ]
+    },
+    {
+        icon: FileText,
+        color: '#6366f1',
+        title: '2. Nature of the Service',
+        paras: [
+            'True FoodBite is a consumer food transparency and nutritional analysis platform. It provides educational information about packaged food products based on publicly available data.',
+            'The Service sources product data from OpenFoodFacts (a non-profit open food database) and manufacturer-declared labels. We do not independently verify this data through laboratory testing.',
+            'All nutritional scores, Nutri-Grades, NOVA classifications, and additive flagging are algorithmic assessments for educational purposes only. They do not constitute medical advice, dietary prescriptions, or regulatory certifications.',
+            'True FoodBite is not affiliated with FSSAI, ICMR-NIN, WHO, or any government body. References to these organisations are citations of their published research and regulations.',
+        ]
+    },
+    {
+        icon: AlertTriangle,
+        color: '#f59e0b',
+        title: '3. Disclaimer of Medical Advice',
+        paras: [
+            'IMPORTANT: The content on True FoodBite is for general educational and informational purposes ONLY. It is NOT a substitute for professional medical advice, diagnosis, or treatment.',
+            'Never disregard professional medical advice or delay seeking it based on information from this platform. If you have a medical condition (diabetes, allergies, celiac disease, cardiovascular disease, etc.), always consult a qualified healthcare professional or registered dietitian before making dietary changes.',
+            'Allergen information is provided as an educational aid. We strongly caution users with severe allergies to verify ingredients directly on physical product labels and contact manufacturers, as formulations change without notice.',
+        ]
+    },
+    {
+        icon: Shield,
+        color: '#ec4899',
+        title: '4. User Accounts & Security',
+        paras: [
+            'Registration is optional. Core scanning and search features are available without an account.',
+            'You are responsible for maintaining the confidentiality of your account credentials. Do not share your password with anyone.',
+            'You must provide accurate information when registering. Creating accounts with false identities or for unauthorised purposes is prohibited.',
+            'We reserve the right to suspend accounts that violate these Terms or are used for abuse, scraping at unreasonable scale, or malicious activity.',
+        ]
+    },
+    {
+        icon: XCircle,
+        color: '#ef4444',
+        title: '5. Prohibited Uses',
+        paras: [
+            'You may not use the Service for any of the following purposes:',
+        ],
+        bullets: [
+            'Automated scraping or bulk downloading of product data without explicit written permission',
+            'Reverse-engineering, decompiling, or extracting proprietary algorithms',
+            'Misrepresenting True FoodBite ratings in advertising, packaging, or marketing materials',
+            'Attempting to compromise the security or integrity of our systems',
+            'Submitting false or misleading product data',
+            'Using the Service for commercial data resale without a data licensing agreement',
+        ],
+        postPara: 'Violations may result in immediate account termination and, where applicable, legal action under the Information Technology Act 2008.'
+    },
+    {
+        icon: Scale,
+        color: '#0ea5e9',
+        title: '6. Intellectual Property',
+        paras: [
+            'The True FoodBite brand, logo, design, rating methodology, and proprietary software code are the intellectual property of True FoodBite and are protected under applicable Indian and international IP laws.',
+            'Product names, images, and nutritional data sourced from OpenFoodFacts remain subject to the Open Database License (ODbL) v1.0. Re-use of this data must comply with ODbL terms.',
+            'You are granted a limited, non-exclusive, non-transferable licence to access and use the Service for personal, non-commercial purposes only.',
+        ]
+    },
+    {
+        icon: AlertTriangle,
+        color: '#84cc16',
+        title: '7. Limitation of Liability',
+        paras: [
+            'To the fullest extent permitted by Indian law, True FoodBite and its creators shall not be liable for:',
+        ],
+        bullets: [
+            'Any health consequences arising from reliance on our ratings or recommendations',
+            'Inaccuracies in product data sourced from third-party databases or manufacturer labels',
+            'Data loss, service interruptions, or technical errors',
+            'Indirect, incidental, or consequential damages of any kind',
+        ],
+        postPara: 'Our total liability to you, if applicable, shall not exceed INR 1,000 (Rupees one thousand only) or the amount you paid for premium services, whichever is greater.'
+    },
+    {
+        icon: Scale,
+        color: '#8b5cf6',
+        title: '8. Governing Law & Dispute Resolution',
+        paras: [
+            'These Terms are governed by the laws of India. Any disputes arising from these Terms or your use of the Service shall be subject to the exclusive jurisdiction of courts in India.',
+            'We encourage users to first contact us directly to resolve any disputes amicably before initiating formal proceedings.',
+            'If you have a consumer complaint, you may also approach the National Consumer Helpline (NCH) at 1800-11-4000 or through the INGRAM portal.',
+        ]
+    },
+];
 
+export default function TermsOfService() {
     return (
-        <div className="page-container">
-            {/* Header */}
-            <div style={{
-                background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%)',
-                borderRadius: 'var(--radius-3xl)',
-                padding: '3rem 2rem',
-                marginBottom: '3rem',
-                textAlign: 'center',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
-            }}>
-                <div style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '80px',
-                    height: '80px',
-                    borderRadius: 'var(--radius-full)',
-                    background: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)',
-                    marginBottom: '1.5rem',
-                    boxShadow: '0 10px 30px rgba(124, 58, 237, 0.3)'
-                }}>
-                    <FileText size={40} color="#fff" />
-                </div>
-                <h1 style={{
-                    fontSize: '3rem',
-                    fontWeight: '900',
-                    marginBottom: '1rem',
-                    background: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent'
-                }}>
-                    Terms of Service
-                </h1>
-                <p style={{
-                    fontSize: '1.1rem',
-                    color: 'var(--color-text-muted)',
-                    maxWidth: '700px',
-                    margin: '0 auto 1rem'
-                }}>
-                    Please read these terms carefully before using True FoodBite. Your use of our service constitutes acceptance of these terms.
-                </p>
-                <p style={{
-                    fontSize: '0.9rem',
-                    color: 'var(--color-text-muted)',
-                    fontStyle: 'italic'
-                }}>
-                    Last Updated: {lastUpdated}
-                </p>
-            </div>
+        <div style={{ paddingBottom: '6rem' }}>
 
-            {/* Introduction */}
-            <div style={{
-                background: 'var(--gradient-card)',
-                borderRadius: 'var(--radius-2xl)',
-                padding: '2rem',
-                marginBottom: '3rem',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
+            {/* ── HERO ── */}
+            <section style={{
+                background: 'linear-gradient(180deg, rgba(99,102,241,0.07) 0%, transparent 100%)',
+                borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '5rem 0 3.5rem', textAlign: 'center'
             }}>
-                <h2 style={{
-                    fontSize: '1.5rem',
-                    fontWeight: '700',
-                    marginBottom: '1rem',
-                    color: '#fff'
-                }}>
-                    Welcome to True FoodBite
-                </h2>
-                <p style={{
-                    color: 'var(--color-text-muted)',
-                    lineHeight: '1.8',
-                    fontSize: '1rem'
-                }}>
-                    These Terms of Service ("Terms") govern your use of True FoodBite, a web-based nutritional information platform.
-                    By accessing or using our service, you agree to comply with and be bound by these Terms. If you disagree with
-                    any part of these terms, you do not have permission to access our service. We encourage you to read these
-                    terms carefully and contact us if you have any questions.
-                </p>
-            </div>
-
-            {/* Terms Sections */}
-            <div style={{
-                display: 'grid',
-                gap: '2rem',
-                marginBottom: '3rem'
-            }}>
-                {sections.map((section, index) => (
-                    <div
-                        key={index}
-                        style={{
-                            background: 'var(--gradient-card)',
-                            borderRadius: 'var(--radius-2xl)',
-                            padding: '2rem',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                            transition: 'transform 0.3s, box-shadow 0.3s'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = 'translateY(-2px)';
-                            e.currentTarget.style.boxShadow = '0 10px 30px rgba(124, 58, 237, 0.2)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.boxShadow = 'none';
-                        }}
-                    >
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '1rem',
-                            marginBottom: '1.5rem'
+                <div className="container" style={{ maxWidth: '780px' }}>
+                    <motion.div initial="hidden" animate="visible" variants={stagger}>
+                        <motion.div variants={fadeUp} style={{
+                            display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 1.2rem',
+                            borderRadius: '999px', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)',
+                            color: '#818cf8', fontWeight: '700', fontSize: '0.82rem', marginBottom: '1.5rem'
                         }}>
-                            <div style={{
-                                width: '50px',
-                                height: '50px',
-                                borderRadius: 'var(--radius-lg)',
-                                background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                            }}>
-                                <section.icon size={24} color="#7c3aed" />
-                            </div>
-                            <h3 style={{
-                                fontSize: '1.5rem',
-                                fontWeight: '700',
-                                color: '#fff'
-                            }}>
-                                {section.title}
-                            </h3>
-                        </div>
-                        <div>
-                            {section.content.map((paragraph, idx) => (
-                                <p
-                                    key={idx}
-                                    style={{
-                                        color: 'var(--color-text-muted)',
-                                        lineHeight: '1.8',
-                                        fontSize: '1rem',
-                                        marginBottom: paragraph.startsWith('•') ? '0.5rem' : '1rem'
-                                    }}
-                                >
-                                    {paragraph}
-                                </p>
-                            ))}
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {/* Termination */}
-            <div style={{
-                background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%)',
-                borderRadius: 'var(--radius-2xl)',
-                padding: '2rem',
-                marginBottom: '3rem',
-                border: '1px solid rgba(239, 68, 68, 0.3)'
-            }}>
-                <h3 style={{
-                    fontSize: '1.3rem',
-                    fontWeight: '700',
-                    marginBottom: '1rem',
-                    color: '#fff'
-                }}>
-                    Termination
-                </h3>
-                <p style={{
-                    color: 'var(--color-text-muted)',
-                    lineHeight: '1.8',
-                    fontSize: '1rem'
-                }}>
-                    We reserve the right to terminate or suspend access to our service immediately, without prior notice or liability,
-                    for any reason whatsoever, including without limitation if you breach these Terms. Upon termination, your right
-                    to use the service will cease immediately.
-                </p>
-            </div>
-
-            {/* Governing Law */}
-            <div style={{
-                background: 'var(--gradient-card)',
-                borderRadius: 'var(--radius-2xl)',
-                padding: '2rem',
-                marginBottom: '3rem',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
-            }}>
-                <h3 style={{
-                    fontSize: '1.3rem',
-                    fontWeight: '700',
-                    marginBottom: '1rem',
-                    color: '#fff'
-                }}>
-                    Governing Law
-                </h3>
-                <p style={{
-                    color: 'var(--color-text-muted)',
-                    lineHeight: '1.8',
-                    fontSize: '1rem'
-                }}>
-                    These Terms shall be governed and construed in accordance with the laws of India, without regard to its conflict
-                    of law provisions. Any disputes arising from these Terms or your use of True FoodBite shall be subject to the exclusive
-                    jurisdiction of the courts in India.
-                </p>
-            </div>
-
-            {/* Contact Information */}
-            <div style={{
-                background: 'var(--gradient-card)',
-                borderRadius: 'var(--radius-2xl)',
-                padding: '2rem',
-                marginBottom: '2rem',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                textAlign: 'center'
-            }}>
-                <h3 style={{
-                    fontSize: '1.3rem',
-                    fontWeight: '700',
-                    marginBottom: '1rem',
-                    color: '#fff'
-                }}>
-                    Questions About These Terms?
-                </h3>
-                <p style={{
-                    color: 'var(--color-text-muted)',
-                    marginBottom: '1.5rem',
-                    lineHeight: '1.8'
-                }}>
-                    If you have any questions about these Terms of Service, please contact us:
-                </p>
-                <div style={{
-                    display: 'flex',
-                    gap: '2rem',
-                    justifyContent: 'center',
-                    flexWrap: 'wrap'
-                }}>
-                    <a
-                        href="mailto:legal@truefoodbite.com"
-                        style={{
-                            color: '#7c3aed',
-                            textDecoration: 'none',
-                            fontWeight: '600'
-                        }}
-                    >
-                        legal@truefoodbite.com
-                    </a>
-                    <a
-                        href="mailto:support@truefoodbite.com"
-                        style={{
-                            color: '#7c3aed',
-                            textDecoration: 'none',
-                            fontWeight: '600'
-                        }}
-                    >
-                        support@truefoodbite.com
-                    </a>
+                            <Scale size={14} /> Fair Terms · Plain Language
+                        </motion.div>
+                        <motion.h1 variants={fadeUp} style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: '900', lineHeight: 1.1, marginBottom: '1rem' }}>
+                            Terms of Service
+                        </motion.h1>
+                        <motion.p variants={fadeUp} style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: 1.65 }}>
+                            Written in plain English. No hidden clauses. If you see something unfair, please tell us.
+                        </motion.p>
+                        <motion.div variants={fadeUp} style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', marginTop: '1.25rem', flexWrap: 'wrap' }}>
+                            <span style={{ fontSize: '0.78rem', color: '#64748b' }}>✅ Last Updated: April 2026</span>
+                            <span style={{ fontSize: '0.78rem', color: '#64748b' }}>✅ Applicable Jurisdiction: India</span>
+                            <span style={{ fontSize: '0.78rem', color: '#64748b' }}>✅ IT Act 2008 Compliant</span>
+                        </motion.div>
+                    </motion.div>
                 </div>
-            </div>
+            </section>
 
-            {/* Back to Home */}
-            <div style={{ textAlign: 'center' }}>
-                <Link
-                    to="/"
-                    style={{
-                        display: 'inline-block',
-                        padding: '1rem 2rem',
-                        background: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)',
-                        color: '#fff',
-                        textDecoration: 'none',
-                        borderRadius: 'var(--radius-full)',
-                        fontWeight: '600',
-                        transition: 'transform 0.3s, box-shadow 0.3s'
-                    }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-2px)';
-                        e.currentTarget.style.boxShadow = '0 10px 30px rgba(124, 58, 237, 0.4)';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = 'none';
-                    }}
-                >
-                    Back to Home
-                </Link>
-            </div>
+            {/* ── SECTIONS ── */}
+            <section style={{ padding: '4rem 0' }}>
+                <div className="container" style={{ maxWidth: '820px' }}>
+                    <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                        {TERMS.map(t => (
+                            <motion.div key={t.title} variants={fadeUp} style={{
+                                borderRadius: '20px', border: `1px solid ${t.color}18`,
+                                background: `${t.color}04`, padding: '2rem 2.5rem'
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem' }}>
+                                    <div style={{ width: '40px', height: '40px', borderRadius: '11px', background: `${t.color}18`, border: `1px solid ${t.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                        <t.icon size={20} color={t.color} />
+                                    </div>
+                                    <h2 style={{ fontSize: '1.1rem', fontWeight: '800', color: '#f1f5f9' }}>{t.title}</h2>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                                    {t.paras.map((p, i) => (
+                                        <p key={i} style={{ fontSize: '0.85rem', color: '#94a3b8', lineHeight: 1.75 }}>{p}</p>
+                                    ))}
+                                    {t.bullets && (
+                                        <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                                            {t.bullets.map(b => (
+                                                <li key={b} style={{ display: 'flex', gap: '0.6rem', fontSize: '0.84rem', color: '#94a3b8', lineHeight: 1.55 }}>
+                                                    <span style={{ color: t.color, flexShrink: 0, marginTop: '3px' }}>•</span> {b}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                    {t.postPara && <p style={{ fontSize: '0.85rem', color: '#94a3b8', lineHeight: 1.75, marginTop: '0.25rem' }}>{t.postPara}</p>}
+                                </div>
+                            </motion.div>
+                        ))}
+
+                        {/* Contact */}
+                        <motion.div variants={fadeUp} style={{ padding: '1.75rem 2.5rem', borderRadius: '20px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <div style={{ width: '40px', height: '40px', borderRadius: '11px', background: 'rgba(132,204,22,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Mail size={20} color="#84cc16" />
+                            </div>
+                            <div>
+                                <h3 style={{ fontSize: '0.95rem', fontWeight: '800', color: '#f1f5f9', marginBottom: '0.2rem' }}>Questions About These Terms?</h3>
+                                <p style={{ fontSize: '0.82rem', color: '#64748b' }}>Contact True FoodBite for any legal queries or to report violations. We respond within 48 business hours.</p>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                </div>
+            </section>
         </div>
     );
-};
-
-export default TermsOfService;
+}

@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, ArrowRight, X, Leaf, Star, Zap, Award, Heart, Camera, Upload, ScanLine, XCircle, WifiOff, Check, Clock, Trash2, AlertTriangle, FileText, Clipboard, RotateCcw, Eye, Loader, ShieldAlert, ShieldCheck, Vegan, ChevronDown, ChevronUp, Info } from 'lucide-react';
+import { ArrowRight, X, Leaf, Star, Zap, Award, Heart, Camera, Upload, ScanLine, XCircle, WifiOff, Check, Clock, Trash2, AlertTriangle, FileText, Clipboard, RotateCcw, Eye, Loader, ShieldAlert, ShieldCheck, Vegan, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BrowserMultiFormatReader, BarcodeFormat, DecodeHintType } from '@zxing/library';
 import { searchProducts, getProductsByCategory, getExpertCuratedProducts } from '../../core/services/api';
 import { analyzeLabelImage } from '../services/ocrService';
 import { analyzeIngredientList } from '../../product/services/ingredientAnalyzer';
+import SearchAutocomplete from '../components/SearchAutocomplete';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const EXPERT_LISTS = [
@@ -308,18 +309,71 @@ const Scanner = () => {
     return (
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.3 }} className="container" style={{ paddingBottom: '4rem' }}>
             <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center', marginBottom: '3rem' }}>
-                <h1 className="section-title">Find Healthy Food</h1>
-                <p className="section-subtitle">Search by name, enter a barcode number, scan barcodes, or upload a label photo.</p>
+                {/* Premium badge */}
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 1.2rem', borderRadius: '999px', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.22)', color: '#818cf8', fontWeight: '700', fontSize: '0.78rem', letterSpacing: '0.04em', marginBottom: '1.25rem' }}>
+                    <ScanLine size={13} /> 3M+ Products · Instant Analysis · Free
+                </div>
+                <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: '900', lineHeight: 1.08, marginBottom: '0.85rem', letterSpacing: '-0.03em' }}>
+                    Decode Any Packaged Food<br /><span className="text-gradient">In Under 3 Seconds</span>
+                </h1>
+                <p style={{ color: '#64748b', fontSize: '1rem', maxWidth: '620px', margin: '0 auto 1.5rem', lineHeight: 1.65 }}>
+                    Type a product name for instant suggestions, scan a barcode with your camera, or upload a label photo.
+                    Results cross-checked against FSSAI standards, ICMR-NIN dietary guidelines, and 3M+ OpenFoodFacts verified products.
+                </p>
+                {/* Trust strip */}
+                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+                    {['FSSAI Compliant', 'ICMR-NIN Guidelines', 'NOVA Classified', 'Allergen Tracked', 'Additive Flagged'].map(b => (
+                        <span key={b} style={{ fontSize: '0.68rem', padding: '0.2rem 0.65rem', borderRadius: '999px', background: 'rgba(132,204,22,0.06)', border: '1px solid rgba(132,204,22,0.15)', color: '#84cc16', fontWeight: '700' }}>✓ {b}</span>
+                    ))}
+                </div>
 
-                {/* Search Bar */}
-                <form onSubmit={handleSearch} style={{ position: 'relative', marginTop: '2rem' }}>
-                    <div className="glass-panel" style={{ display: 'flex', alignItems: 'center', padding: '0.5rem', borderRadius: 'var(--radius-full)', background: 'rgba(255,255,255,0.05)' }}>
-                        <Search className="text-muted" style={{ marginLeft: '1rem', color: 'var(--color-text-muted)' }} />
-                        <input type="text" placeholder="Search product name or type barcode number..."
-                            value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-                            style={{ flex: 1, background: 'transparent', border: 'none', color: '#fff', padding: '1rem', fontSize: '1rem', outline: 'none' }} />
-                        {searchTerm && <button type="button" onClick={() => setSearchTerm('')} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', marginRight: '0.5rem' }}><X size={18} /></button>}
-                        <button type="submit" className="btn-primary" disabled={loading}>{loading ? '...' : isOffline ? 'Search Cache' : 'Search'}</button>
+                {/* Search Bar — live autocomplete dropdown */}
+                {/* IMPORTANT: overflow must NOT be hidden on the pill — dropdown escapes via position:absolute on the outer wrapper */}
+                <form onSubmit={handleSearch} style={{
+                    position: 'relative',
+                    marginTop: '2.5rem',
+                    zIndex: 2000, /* Extremely high to ensure dropdown stays above EVERYTHING else */
+                    width: '100%',
+                    maxWidth: '800px',
+                    margin: '0 auto',
+                    marginBottom: '1rem'
+                }}>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        background: 'rgba(255,255,255,0.03)',
+                        borderRadius: '999px',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        backdropFilter: 'blur(20px)',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.02)',
+                        padding: '0.4rem 0.4rem 0.4rem 0',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    }}>
+                        <SearchAutocomplete
+                            value={searchTerm}
+                            onChange={setSearchTerm}
+                            onSubmit={handleSearch}
+                            loading={loading}
+                            isOffline={isOffline}
+                        />
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            style={{
+                                flexShrink: 0,
+                                padding: '0.8rem 1.6rem',
+                                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                                border: 'none', borderRadius: '999px',
+                                color: '#fff', fontWeight: '700', fontSize: '0.95rem',
+                                cursor: loading ? 'not-allowed' : 'pointer',
+                                opacity: loading ? 0.7 : 1,
+                                boxShadow: '0 4px 15px rgba(99,102,241,0.35)',
+                                transition: 'all 0.2s ease',
+                                whiteSpace: 'nowrap',
+                            }}
+                        >
+                            {loading ? '⏳' : isOffline ? '📦 Cache' : '🔍 Search'}
+                        </button>
                     </div>
 
                     {isOffline && (
@@ -345,6 +399,7 @@ const Scanner = () => {
 
                     <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handleImageUpload} style={{ display: 'none' }} />
                 </form>
+
 
                 {/* Offline Queue */}
                 {offlineQueue.length > 0 && (
