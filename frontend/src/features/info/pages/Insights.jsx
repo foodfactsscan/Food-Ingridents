@@ -144,6 +144,28 @@ ICMR-NIN recommends 0.8–1.0g protein per kg body weight/day from mixed, high-q
 
 export default function Insights() {
     const [expanded, setExpanded] = useState(null);
+    const [news, setNews] = useState([]);
+    const [loadingNews, setLoadingNews] = useState(true);
+
+    useEffect(() => {
+        const fetchNews = async () => {
+            try {
+                const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
+                const response = await fetch(`${BACKEND_URL}/api/news`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.news?.length > 0) {
+                        setNews(data.news);
+                    }
+                }
+            } catch (err) {
+                console.error('News fetch error:', err);
+            } finally {
+                setLoadingNews(false);
+            }
+        };
+        fetchNews();
+    }, []);
 
     return (
         <div style={{ paddingBottom: '6rem' }}>
@@ -171,6 +193,67 @@ export default function Insights() {
                             No wellness myths. No sponsored content. Just documented food science — simplified for you.
                         </motion.p>
                     </motion.div>
+                </div>
+            </section>
+            
+            {/* ── LIVE INDUSTRY ALERTS ── */}
+            <section style={{ padding: '3rem 0 1rem' }}>
+                <div className="container">
+                    <div style={{
+                        background: 'rgba(239, 68, 68, 0.03)',
+                        border: '1px solid rgba(239, 68, 68, 0.15)',
+                        borderRadius: '24px',
+                        padding: '2rem'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <div className="animate-ping" style={{ position: 'absolute', width: '12px', height: '12px', borderRadius: '50%', background: '#ef4444', opacity: 0.6 }} />
+                                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444', zIndex: 1 }} />
+                                </div>
+                                <h2 style={{ fontSize: '1.25rem', fontWeight: '900', color: '#f1f5f9', margin: 0 }}>Breaking Industry Alerts</h2>
+                            </div>
+                            <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '600' }}>Updated every 15 mins</span>
+                        </div>
+
+                        {loadingNews ? (
+                            <div style={{ padding: '2rem', textAlign: 'center', color: '#475569' }}>Connecting to global food safety networks...</div>
+                        ) : news.length > 0 ? (
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }}>
+                                {news.map((item) => (
+                                    <a
+                                        key={item.id}
+                                        href={item.link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                            textDecoration: 'none',
+                                            display: 'block',
+                                            padding: '1.25rem',
+                                            background: 'rgba(255,255,255,0.03)',
+                                            border: '1px solid rgba(255,255,255,0.06)',
+                                            borderRadius: '16px',
+                                            transition: 'all 0.2s ease',
+                                        }}
+                                        onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
+                                        onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
+                                    >
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                                            <span style={{ fontSize: '0.65rem', padding: '0.2rem 0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', color: '#94a3b8', fontWeight: '700' }}>
+                                                {item.source}
+                                            </span>
+                                            <ExternalLink size={12} color="#64748b" />
+                                        </div>
+                                        <h4 style={{ fontSize: '0.9rem', lineHeight: 1.45, color: '#e2e8f0', fontWeight: '600', margin: 0 }}>
+                                            {item.title}
+                                        </h4>
+                                    </a>
+                                ))}
+                            </div>
+                        ) : (
+                            <div style={{ padding: '2rem', textAlign: 'center', color: '#475569' }}>No critical alerts found in the last 24 hours. Stand by...</div>
+                        )}
+                    </div>
                 </div>
             </section>
 

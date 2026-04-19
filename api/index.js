@@ -193,7 +193,66 @@ async function sendOTPEmail(email, otp, purpose) {
     }
 }
 
-const isDevMode = () => !process.env.SMTP_USER || !process.env.SMTP_PASS;
+// ─── Live News Store (In-memory cache) ────────────────────────────────────────
+let newsCache = { data: [], timestamp: 0 };
+const NEWS_CACHE_TTL = 15 * 60 * 1000; // 15 minutes
+
+async function fetchLiveNews() {
+    if (Date.now() - newsCache.timestamp < NEWS_CACHE_TTL && newsCache.data.length > 0) {
+        return newsCache.data;
+    }
+
+    try {
+        // Query focused on Indian food safety, FSSAI alerts, and export/import news
+        const query = encodeURIComponent('food safety India OR FSSAI alerts OR Indian food export news OR food adulteration India');
+        const url = `https://news.google.com/rss/search?q=${query}&hl=en-IN&gl=IN&ceid=IN:en`;
+
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('News fetch failed');
+
+        const xml = await response.text();
+
+        // Simple regex-based RSS parser (lightweight for serverless)
+        const items = [];
+        const itemMatches = xml.matchAll(/<item>([\s\S]*?)<\/item>/g);
+
+        for (const match of itemMatches) {
+            const content = match[1];
+            const title = content.match(/<title>([\s\S]*?)<\/title>/)?.[1] || '';
+            const link = content.match(/<link>([\s\S]*?)<\/link>/)?.[1] || '';
+            const pubDate = content.match(/<pubDate>([\s\S]*?)<\/pubDate>/)?.[1] || '';
+            const source = content.match(/<source[^>]*>([\s\S]*?)<\/source>/)?.[1] || '';
+
+            if (title && link) {
+                // Clean up title (remove source suffix often added by Google News)
+                let cleanTitle = title.split(' - ')[0].trim();
+                // Decode common HTML entities
+                cleanTitle = cleanTitle
+                    .replace(/&amp;/g, '&')
+                    .replace(/&quot;/g, '"')
+                    .replace(/&apos;/g, "'")
+                    .replace(/&lt;/g, '<')
+                    .replace(/&gt;/g, '>')
+                    .replace(/&#39;/g, "'");
+
+                items.push({
+                    title: cleanTitle,
+                    link,
+                    source: source || 'News Update',
+                    date: pubDate,
+                    id: crypto.createHash('md5').update(link).digest('hex')
+                });
+            }
+            if (items.length >= 10) break;
+        }
+
+        newsCache = { data: items, timestamp: Date.now() };
+        return items;
+    } catch (err) {
+        console.error('Fetch news error:', err.message);
+        return newsCache.data; // Return stale cache on error
+    }
+}
 
 // ─── DB middleware ────────────────────────────────────────────────────────────
 app.use(async (req, res, next) => {
@@ -217,6 +276,16 @@ app.get('/api/health', (req, res) => {
 });
 
 // ─── AUTH ROUTES ──────────────────────────────────────────────────────────────
+
+// GET /api/news - Fetch live food industry news
+app.get('/api/news', async (req, res) => {
+    try {
+        const news = await fetchLiveNews();
+        res.json({ success: true, count: news.length, news });
+    } catch (err) {
+        res.status(500).json({ message: 'Failed to fetch news' });
+    }
+});
 
 // POST /api/auth/signup
 app.post('/api/auth/signup', async (req, res) => {

@@ -153,14 +153,37 @@ const HOW_STEPS = [
 
 // ════════════════════════════════════════════════════════════════
 const Home = () => {
+    const [tickerItems, setTickerItems] = useState(TICKER_ITEMS);
     const [tickerIdx, setTickerIdx] = useState(0);
     const [activeNova, setActiveNova] = useState(null);
     const [expandedAdditive, setExpandedAdditive] = useState(null);
 
+    // Fetch live food news
     useEffect(() => {
-        const t = setInterval(() => setTickerIdx(i => (i + 1) % TICKER_ITEMS.length), 3500);
-        return () => clearInterval(t);
+        const fetchNews = async () => {
+            try {
+                const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
+                const response = await fetch(`${BACKEND_URL}/api/news`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.news?.length > 0) {
+                        // Mix real news with static tips to ensure variety and expertise
+                        const realNews = data.news.map(n => `📰 ${n.title}`);
+                        setTickerItems([...realNews, ...TICKER_ITEMS]);
+                    }
+                }
+            } catch (err) {
+                console.warn('Could not fetch live news, using fallback ticker.');
+            }
+        };
+
+        fetchNews();
     }, []);
+
+    useEffect(() => {
+        const t = setInterval(() => setTickerIdx(i => (i + 1) % tickerItems.length), 4000);
+        return () => clearInterval(t);
+    }, [tickerItems]);
 
     return (
         <>
@@ -237,7 +260,7 @@ const Home = () => {
                                     transition={{ duration: 0.35 }}
                                     style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: '500' }}
                                 >
-                                    {TICKER_ITEMS[tickerIdx]}
+                                    {tickerItems[tickerIdx]}
                                 </motion.span>
                             </AnimatePresence>
                         </motion.div>
