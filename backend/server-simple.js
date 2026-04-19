@@ -17,6 +17,7 @@ const PORT = process.env.PORT || 5000;
 const ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://localhost:3000',
+    'https://true-foodbite.vercel.app',
     'https://truefoodbite.vercel.app',
     process.env.CLIENT_URL,
 ].filter(Boolean);
@@ -29,8 +30,8 @@ app.use(cors({
         if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
             return callback(null, true);
         }
-        // Allow any truefoodbite vercel.app subdomain
-        if (origin.includes('truefoodbite') && origin.includes('vercel.app')) {
+        // Allow any *.vercel.app subdomain that contains truefoodbite or true-foodbite
+        if (origin.endsWith('.vercel.app') && (origin.includes('truefoodbite') || origin.includes('true-foodbite'))) {
             return callback(null, true);
         }
         // Allow explicitly configured CLIENT_URL

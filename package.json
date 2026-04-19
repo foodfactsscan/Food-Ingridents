@@ -2,7 +2,11 @@
   "name": "true-food-bite",
   "private": true,
   "version": "1.0.0",
+  "type": "module",
   "description": "Root package manager for True FoodBite",
+  "engines": {
+    "node": ">=18.x"
+  },
   "workspaces": [
     "frontend",
     "backend"

@@ -1,12 +1,11 @@
 // ─── True FoodBite Auth Service ─────────────────────────────────────────────
 // API base URL resolution:
-//   - Production (Vercel): same-domain /api rewrites via vercel.json
+//   - Production (Vercel): relative /api path — works regardless of domain name
 //   - Local dev: http://localhost:5000/api
-const API_URL = import.meta.env.VITE_API_URL
-    ? import.meta.env.VITE_API_URL
-    : (typeof window !== 'undefined' && window.location.hostname !== 'localhost')
+const API_URL = import.meta.env.VITE_API_URL ||
+    (typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')
         ? '/api'
-        : 'http://localhost:5000/api';
+        : 'http://localhost:5000/api');
 
 // ─── Safe JSON parser ─────────────────────────────────────────────────────────
 // CRITICAL FIX: Always parse the body as text first, then attempt JSON.parse.
